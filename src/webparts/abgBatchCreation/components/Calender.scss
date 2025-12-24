@@ -1,0 +1,95 @@
+.calenderContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: aliceblue
+}
+
+.calendar-container {
+  width: 100%;
+  max-width: 500px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  font-family: "Segoe UI", sans-serif;
+  position: relative;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.calendar-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.nav-icon {
+  cursor: pointer;
+  color: #0078d4;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+
+.calendar-weekdays div {
+  font-weight: 600;
+  padding: 8px 0;
+  font-size: 13px;
+  color: #605e5c;
+}
+
+.calendar-grid {
+  gap: 6px;
+}
+
+.calendar-cell {
+  height: 48px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.calendar-cell:hover {
+  background-color: #f3f2f1;
+}
+
+.calendar-cell.today {
+  background-color: #0078d4;
+  color: #ffffff;
+}
+
+.calendar-cell.empty {
+  cursor: default;
+}
+
+.event-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #d13438;
+  border-radius: 50%;
+  margin-top: 4px;
+}
+
+.cancleIcon {
+    color: #d13438;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+.cancleIcon:hover {
+    background: #ffbcbc;
+}

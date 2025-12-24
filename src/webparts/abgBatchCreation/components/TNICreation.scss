@@ -1,0 +1,338 @@
+.tni-creation {
+  padding: 20px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.tni-creation h1 {
+  background: linear-gradient(90deg, #A2231D, #C5983D);
+  color: white;
+  padding: 16px 30px;
+  margin: 0 0 30px 0;
+  font-size: 26px;
+  font-weight: bold;
+  border-radius: 5px 5px 0 0;
+}
+
+.filters {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+  display: flex;
+  align-items: end;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.filters > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+}
+
+.filters label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.filters select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  padding: 25px;
+  margin-bottom: 40px;
+}
+
+.section h2 {
+  background: #A2231D;
+  color: white;
+  padding: 12px 20px;
+  margin: -25px -25px 20px -25px;
+  border-radius: 8px 8px 0 0;
+  font-size: 20px;
+}
+
+.yellow thead {
+  background: #FFD966 !important;
+  color: #000;
+  font-weight: bold;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  margin: 15px 0;
+}
+
+.red-btn {
+  background: #A2231D !important;
+  color: white !important;
+  float: right;
+  margin-top: 20px;
+  font-size: 16px;
+  padding: 12px 40px !important;
+}
+
+//Loading spinner css
+.loadingOverlay1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner1 {
+  width: 55px;
+  height: 55px;
+  border: 6px solid #ccc;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.searchIcon {
+  position: absolute;
+  left: 8px;
+  top: 35%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+}
+
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #ddd;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #555;
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pg-btn {
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+
+.pg-btn:hover:not(:disabled) {
+  background: #0078d4;
+  border-color: #0078d4;
+  color: white;
+}
+
+.pg-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.pg-number {
+  font-size: 14px;
+  padding: 0 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+.rows-dropdown {
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 2px solid #d8d8d8;
+  border-radius: 3px;
+  background: white;
+  cursor: pointer;
+}
+
+.rows-dropdown:hover {
+  border-color: #a2231d;
+}
+
+.table-search {
+  width: 250px;
+  padding: 5px 8px;
+  margin-bottom: 10px;
+  border-radius: 3px;
+  border: 2px solid #d8d8d8;
+}
+
+.table-search:hover {
+  border-color: #a2231d;
+}
+
+.selected-count {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  background: #f1f7ff;
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #d2e3ff;
+}
+
+
+
+
+// Progress Bar Styles
+/* ===== Overlay ===== */
+.loadingOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* ===== Spinner (Your existing one) ===== */
+.spinner {
+  width: 55px;
+  height: 55px;
+  border: 6px solid #ccc;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Circular Progress ===== */
+.progressCircleWrapper {
+  position: relative;
+  margin-top: 14px;
+  width: 90px;
+  height: 90px;
+}
+
+.progressCircle {
+  transform: rotate(-90deg);
+}
+
+/* Background Ring */
+.progressBg {
+  fill: none;
+  stroke: #c2c2c2;
+  stroke-width: 6;
+}
+
+/* Progress Ring */
+.progressValue {
+  fill: none;
+  stroke: #0078d4;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.35s ease, stroke 0.3s ease;
+}
+
+/* Near Completion (80%+) */
+.progressNear {
+  stroke: #ffaa44;
+}
+
+/* Completed (100%) */
+.progressDone {
+  stroke: #107c10;
+}
+
+/* Percentage */
+.progressPercent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c2c2c2;
+}
+
+/* Checkmark */
+.progressCheck {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #107c10;
+  animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Centered text below spinner */
+.checkingText {
+  margin-top: 14px; /* spacing below spinner */
+  font-size: 16px;
+  font-weight: 500;
+  color: #c2c2c2; /* white text on semi-transparent overlay */
+  text-align: center;
+  animation: fadeIn 0.4s ease; /* subtle fade in */
+}
+
+/* Optional: subtle pulsing animation to show activity */
+@keyframes pulse {
+  0% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.6; transform: scale(1); }
+}
+
+.checkingText.pulse {
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+/* Fade-in for smooth appearance */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

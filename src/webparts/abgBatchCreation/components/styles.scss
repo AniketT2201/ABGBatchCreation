@@ -1,0 +1,428 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+#spCommandBar,
+#spSiteHeader,
+#spLeftNav,
+.CommandBarWrapper,
+.sp-appBar,
+#CommentsWrapper {
+  display: none !important;
+}
+.CanvasZone {
+  padding: 0 !important;
+
+}
+
+.ControlZone {
+  margin-top: 0 !important;
+  padding: 0 !important;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+#workbenchPageContent {
+  max-width: 100% !important;
+}
+
+#workbenchPageContent>div>div>div {
+  padding: 0 !important;
+}
+
+
+
+
+.pageContainer {
+    background: #F5F1EB;
+  //background: linear-gradient(140deg, #fffffff7, #ff000fd1 180%);
+}
+/* css for menu dynamic*/
+.menuWrapper {
+  //background: #ff000059;
+  display: flex !important;
+  font-family: 'Segoe UI', sans-serif;
+  justify-content: space-between !important;
+  margin-bottom: 30px;
+  width: auto;
+  border-bottom: 3px solid #4A2C20;
+}
+/* Popup Header */
+.popup-header {
+  color: #A2231D;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 15px;
+}
+
+.Logo img {
+  //height: 40px;   /* scale your logo */
+  width: 50%;
+  object-fit: contain;
+  margin-top: 8px;
+  margin-right: 20px;
+}
+// for header text 
+.main-heading {
+  // background: linear-gradient(135deg, #E30613, #B0050F);
+  background: #C5983D;
+  color: white;
+  padding: 16px 20px 0px;       /* extra padding on sides */
+  margin: 0 auto 40px;      /* center it */
+  font-size: clamp(8px, 2.5vw, 16px); /* responsive font size */
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgb(255 0 0 / 20%);
+  border-radius: 6px;
+  width: 96%;
+}
+
+.tabs {
+  display: flex;  
+
+  .tab {
+    padding: 2px 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    color: #b71c1c;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+
+    &.active {
+    //border-bottom: 3px solid #b71c1c;
+    color: #880e4f;
+    background: #f5f1eb;
+    }
+
+    &:hover {
+    color: #d32f2f;
+    }
+  }
+}
+
+.createFormBtnWrapper {
+  display: flex;
+  justify-content: flex-end; /* pushes button to the right */
+}
+
+.createFormBtn {
+  // background: linear-gradient(135deg, #E30613, #B0050F);
+  background: #A2231D;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  margin-right: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block; /* keeps it stable */
+}
+
+.createFormBtn:hover {
+  background: #B0050F;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* 📱 Small screens (stack / full width) */
+@media (max-width: 576px) {
+  .createFormBtn {
+    width: 100%;
+    margin-right: 0;
+    text-align: center;
+  }
+}
+.sections-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 10px;
+}
+
+.section-card {
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 5px;
+  text-align: center;
+}
+
+.section-heading {
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 6px;
+  text-align: center;
+  background-color: #ff8282d1;
+}
+
+.section-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.section-item {
+  display: flex;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.section-item:last-child {
+  border-bottom: none;
+}
+
+.section-item.even {
+  background-color: #f9f9f9; /* zebra stripe */
+}
+
+.section-item.odd {
+  background-color: #fff;
+}
+
+.section-item:hover {
+  background-color: #ffe2e2; /* hover effect */
+}
+
+.item-title {
+  flex: 1;
+  color: #444;
+  text-decoration: underline;
+}
+
+
+.searchIcon {
+  position: absolute;
+  left: 8px;
+  top: 40%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+}
+
+
+/* Main table */
+.Table-container {
+  background: #fff;
+  border-radius: 7px;
+  padding: 20px;
+  border: 2px solid #e8dfd3;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  margin: 20px auto;
+  width: 96%;
+  overflow-x: auto;   /* Enables horizontal scroll */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+}
+
+.Table {
+  width: 105rem;
+  border-collapse: collapse;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  background-color: #f3f3f3;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Table header */
+.Table-header {
+  background-color: #f3f3f3;
+}
+
+.Header-rows {
+  //background: #E30613;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.Header-data {
+  background: #a2231d;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 12px 16px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: #ffffff;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+/* Table body */
+.Table-body {
+  background-color: #f3f3f3;
+}
+
+// .Body-rows {
+//   transition: background-color 0.2s ease;
+// }
+
+.Body-rows.even {
+  background-color: #fafafa;
+}
+
+.Body-rows.odd {
+  background-color: #fff;
+}
+
+/* Hover effect */
+.Body-rows:hover {
+  background-color: #ffe2e2;
+}
+
+// .Table-container.fade-in {
+//   opacity: 0;
+//   transform: translateY(20px);
+//   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+// }
+
+// .Table-container.fade-in.visible {
+//   opacity: 1;
+//   transform: translateY(0);
+// }
+
+// .Body-rows {
+//   opacity: 0;
+//   transform: translateY(10px);
+//   transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+// }
+
+// .Body-rows.visible {
+//   opacity: 1;
+//   transform: translateY(0);
+// }
+
+
+/* Table cells */
+.Body-data {
+  padding: 10px 14px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #444;
+  word-wrap: break-word;
+}
+
+/* Empty message row */
+.Table-body td[colspan] {
+  font-style: italic;
+  color: #666;
+  padding: 16px;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .Table,
+  .Table thead,
+  .Table tbody,
+  .Table th,
+  .Table td,
+  .Table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .Header-data {
+    display: none; /* Hide header row for mobile */
+  }
+
+  .Body-rows {
+    margin-bottom: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 10px;
+    background-color: #fff;
+  }
+
+  .Body-data {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-bottom: none;
+  }
+
+  .Body-data::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #333;
+    flex-basis: 40%;
+    text-align: left;
+  }
+}
+ 
+// .Body-data svg {
+// transition: transform 0.2s ease, color 0.2s ease;
+// }
+
+// .Body-data svg:hover {
+// transform: scale(1.2);
+// color: #005a9e; /* darker shade on hover */
+// }
+
+
+// pagination css code 
+.Pagination {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.Pagination button {
+  padding: 8px 16px;
+  border: 2px solid #888;
+  border-radius: 8px;
+  background: transparent;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: #fff;
+    background: #666;
+    box-shadow: 0 0 8px #888, 0 0 16px #aaa;
+    animation: pulse 1.5s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 8px #888, 0 0 16px #aaa; }
+  50% { box-shadow: 0 0 16px #bbb, 0 0 32px #ccc; }
+  100% { box-shadow: 0 0 8px #888, 0 0 16px #aaa; }
+}
+
+.Pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.Pagination span {
+  font-size: 14px;
+  color: #333;
+}
+.form-control {
+  margin-bottom: 1rem;
+}
+
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  will-change: opacity, transform;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

@@ -1,0 +1,119 @@
+/* Root */
+.abg-form-container {
+  max-width: 1100px;
+  margin: auto;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Header */
+.abg-form-header {
+  background-color: #b5121b;
+  color: #ffffff;
+  padding: 16px 20px;
+  font-size: 20px;
+  font-weight: 600;
+  border-radius: 6px 6px 0 0;
+}
+
+/* Body */
+.abg-form-body {
+  padding: 20px;
+}
+
+/* Wrapper */
+.abg-form-wrapper {
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+}
+
+/* Row */
+.abg-form-row {
+  display: flex;
+  padding: 14px 10px;
+  border-bottom: 1px solid #e6e6e6;
+  gap: 30%;
+}
+
+/* Columns */
+.abg-col-25 {
+  width: 25%;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+/* Fields */
+.abg-form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Labels */
+.abg-form-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333333;
+}
+
+.abg-form-label.required::after {
+  content: " *";
+  color: #b5121b;
+}
+
+/* Values */
+.abg-form-value {
+  padding: 8px 0;
+  font-weight: 500;
+  color: #555555;
+}
+
+/* Controls */
+.abg-form-control {
+  padding: 8px 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.abg-form-control:focus {
+  outline: none;
+  border-color: #b5121b;
+}
+
+/* Actions */
+.abg-form-actions {
+  text-align: center;
+  padding: 20px;
+}
+
+/* Buttons */
+.abg-btn {
+  min-width: 120px;
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  margin: 0 8px;
+}
+
+.abg-btn-primary {
+  background-color: #b5121b;
+  color: #ffffff;
+}
+
+.abg-btn-primary:hover {
+  background-color: #9e0f17;
+}
+
+.abg-btn-secondary {
+  background-color: #6c757d;
+  color: #ffffff;
+}
+
+.abg-btn-secondary:hover {
+  background-color: #5a6268;
+}

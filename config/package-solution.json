@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "abg-batch-creation-client-side-solution",
+    "id": "5c360c04-3320-4e4a-b132-168cd05a32cf",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.21.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "ABGBatchCreation description"
+      },
+      "longDescription": {
+        "default": "ABGBatchCreation description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "abg-batch-creation Feature",
+        "description": "The feature that activates elements of the abg-batch-creation solution.",
+        "id": "33c663a9-012d-4c56-b315-0f35e68b970b",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/abg-batch-creation.sppkg"
+  }
+}
