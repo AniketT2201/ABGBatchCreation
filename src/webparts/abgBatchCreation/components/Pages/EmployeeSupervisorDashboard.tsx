@@ -4,13 +4,13 @@ import type { IAbgBatchCreationProps } from '../IAbgBatchCreationProps';
 import { useHistory } from 'react-router-dom';
 import { CSVLink } from "react-csv";
 import { Icon } from '@fluentui/react/lib/Icon';
-import DashboardOps from '../../services/BAL/BatchCreationDashboard';
+import ViewAllocatedEmployeeOps from '../../services/BAL/ViewAllocatedEmployee';
 import logo from '../../assets/ABGlogo.jpg';
 import { Search24Regular } from "@fluentui/react-icons";
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import '../styles.scss';
 import '../TNICreation.scss';
-import { IBatchCreationDashboard } from '../../services/interface/IBatchCreationDashboard';
+import { IViewAllocatedEmployee } from '../../services/interface/IViewAllocatedEmployee';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTimes,
@@ -18,6 +18,14 @@ import {
   faEdit,
   faEye
 } from '@fortawesome/free-solid-svg-icons';
+import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
+import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
+import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
+import { TextField } from 'office-ui-fabric-react/lib/TextField';
+import { formatDate } from '../../services/Helper';
+import EmployeeSupervisorOps from '../../services/BAL/EmployeeSupervisor';
+import BatchCreationSpCrudOps from '../../services/BAL/BatchCreationSpCrud';
+import Swal from 'sweetalert2';
 
 
 
@@ -26,20 +34,24 @@ import {
 SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
 SPComponentLoader.loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 
-export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (props: IAbgBatchCreationProps) => {
+export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreationProps> = (props: IAbgBatchCreationProps) => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("OnGoing");
+  const [activeTab, setActiveTab] = useState("Pending");
   const [visible, setVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [filteredData, setFilteredData] = useState<IBatchCreationDashboard[]>([]);
+  const [filteredData, setFilteredData] = useState<IViewAllocatedEmployee[]>([]);
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
   const currentRows = filteredData.slice(startIndex, endIndex);
-  const [DashboardData, setDashboardData] = React.useState<IBatchCreationDashboard[]>([]);
+  const [DashboardData, setDashboardData] = React.useState<IViewAllocatedEmployee[]>([]);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [allSelected, setAllSelected] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [remark, setRemark] = useState('');
   
 
   useEffect(() => {
@@ -47,7 +59,7 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-          const Data = await DashboardOps().getDashboardData(activeTab, props);
+          const Data = await ViewAllocatedEmployeeOps().getAllocatedEmployeeData(activeTab, props);
           setDashboardData(Data);
       } catch (error) {
           console.error('Error fetching dashboard data:', error);
@@ -65,18 +77,15 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
     const filtered = DashboardData.filter((item) =>
       [
         item.Id,
-        item.ModulesName,
+        item.ModuleName,
         item.Level,
         item.BatchName,
-        item.StartDate,
-        item.EndDate,
-        item.TrainerNames,
-        item.TrainerNameNew,
-        item.Duration,
-        item.TrainingTime,
-        item.Venue,
-        item.Unscheduled,
-        item.BatchType
+        item.BatchStartDate,
+        item.BatchEndDate,
+        item.Position,
+        item.EmployeeID,
+        item.EmployeeName,
+        item.Department
       ]
         .filter((field) => field) // Remove null/undefined
         .some((field) =>
@@ -86,23 +95,21 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
     setFilteredData(filtered);
     // Reset to first page when search changes
     setCurrentPage(1);
+    setSelectedItems([]);
+    setAllSelected(false)
   }, [searchQuery, DashboardData]);
   
   // Column definitions: header label + field key + optional render
   const columnsConfig = [
-    { header: "Module", key: "ModulesName" },
+    { header: "Position", key: "Position" },
+    { header: "Module", key: "ModuleName" },
     { header: "Level", key: "Level" },
     { header: "Batch Name", key: "BatchName" },
-    { header: "Start Date", key: "StartDate" },
-    { header: "End Date", key: "EndDate" },
-    { header: "Trainer1", key: "TrainerNames" },
-    { header: "Trainer2", key: "TrainerNameNew" },
-    { header: "Duration", key: "Duration" },
-    { header: "Training Time", key: "TrainingTime" },
-    { header: "Venue", key: "Venue" },
-    { header: "Unscheduled", key: "Unscheduled" },
-    { header: "Batch Type", key: "BatchType" },
-    { header: "Actions", key: "Actions" },
+    { header: "Batch Start Date", key: "BatchStartDate" },
+    { header: "Batch End Date", key: "BatchEndDate" },
+    { header: "Employee ID", key: "EmployeeID" },
+    { header: "Employee Name", key: "EmployeeName" },
+    { header: "Department", key: "Department" },
   ];
 
   // CSV Headers configuration
@@ -114,11 +121,154 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
 
   // Tabs configuration on header tab
   const tabs = [
-    { id: "OnGoing", label: "OnGoing" },
-    { id: "Completed", label: "Completed" },
-    { id: "Cancelled", label: "Cancelled" }
+    { id: "Pending", label: "Pending" },
+    { id: "Approved", label: "Approved" },
+    { id: "Rejected", label: "Rejected" }
 
   ];
+
+  const toggleSelect = (id: number) => {
+    setSelectedItems(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(currentRows.map(item => item.Id));
+    }
+    setAllSelected(!allSelected);
+  };
+
+
+  const handleApprove = async () => {
+    if (!selectedItems.length) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No Selection',
+        text: 'Please select at least one employee.',
+      });
+      return;
+    }
+    if (!confirm(`Are you sure you want to approve ${selectedItems.length} employee(s)?`)) return;
+    setLoading(true);
+    try {
+      const currentDate = new Date().toISOString();
+      const updates = selectedItems.map(id => ({
+        id,
+        updates: {
+          SupervisorStatus: 'Approved',
+          ApproveRejectDate: currentDate,
+        }
+      }));
+      await EmployeeSupervisorOps().bulkUpdateBatchAllocation(updates, props);
+      const newData = await ViewAllocatedEmployeeOps().getAllocatedEmployeeData('Pending', props);
+      setDashboardData(newData);
+      setSelectedItems([]);
+      setAllSelected(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Employees approved successfully!',
+      });
+    } catch (error) {
+      console.error('Error approving:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while approving.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReject = () => {
+    if (!selectedItems.length) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No Selection',
+        text: 'Please select at least one employee.',
+      });
+      return;
+    }
+    setShowRejectModal(true);
+  };
+
+  const handleRejectSave = async () => {
+    if (!remark.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Remark',
+        text: 'Please enter a remark.',
+      });
+      return;
+    }
+    setShowRejectModal(false);
+    const { isConfirmed } = await Swal.fire({
+      icon: 'question',
+      title: 'Confirm Rejection',
+      text: `Are you sure you want to reject ${selectedItems.length} employee(s)?`,
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No',
+    });
+    if (!isConfirmed) return;
+    setLoading(true);
+    try {
+      const currentDate = new Date().toISOString();
+      const batchUpdates = selectedItems.map(id => ({
+        id,
+        updates: {
+          SupervisorStatus: 'Rejected',
+          Remark: remark,
+          ApproveRejectDate: currentDate,
+        }
+      }));
+      await EmployeeSupervisorOps().bulkUpdateBatchAllocation(batchUpdates, props);
+
+      const tniUpdates: Array<{ id: number; updates: any }> = [];
+      for (const id of selectedItems) {
+        const item = DashboardData.find(d => d.Id === id);
+        if (item) {
+          const tniItems = await EmployeeSupervisorOps().getTNIData(item.EmployeeID, item.ModuleName, props);
+          if (tniItems?.length > 0) {
+            tniUpdates.push({
+              id: tniItems[0].Id,
+              updates: {
+                TNIflag: 'SupervisorRejected',
+              }
+            });
+          }
+        }
+      }
+      if (tniUpdates.length > 0) {
+        await BatchCreationSpCrudOps().bulkUpdateTNIFlags(tniUpdates, props);
+      }
+
+      const newData = await ViewAllocatedEmployeeOps().getAllocatedEmployeeData('Pending', props);
+      setDashboardData(newData);
+      setSelectedItems([]);
+      setAllSelected(false);
+      setRemark('');
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Employees rejected successfully!',
+      });
+    } catch (error) {
+      console.error('Error rejecting:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while rejecting.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={`pageContainer `}>
@@ -135,7 +285,7 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
       </div>
 
       <div>
-        <h1 className='popup-header'>TNI Dashboard</h1>
+        <h1 className='popup-header'>Supervisor Approval Dashboard</h1>
         {/* <h1 className={`main-heading `} ></h1> */}
       </div>
       <div className='main-heading'>
@@ -151,23 +301,49 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
           ))}
         </div>
       </div>
-      {activeTab === "OnGoing" && (
+      {activeTab === "Pending" && (
         <div className={`createFormBtnWrapper `} >
           <button className="createFormBtn"
-          onClick={() => history.push('/Calender')}
+            onClick={handleApprove}
           >
-            Calender
+            Approved
           </button>
           <button className="createFormBtn"
-          onClick={() => history.push('/BatchForm')}
+            onClick={handleReject}
           >
-            Create Batch
+            Reject
           </button>
         </div>
       )}
 
+      {/* Reject Modal */}
+      <Dialog
+        hidden={!showRejectModal}
+        onDismiss={() => { setShowRejectModal(false); setRemark(''); }}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: 'Enter Remark for Rejection',
+        }}
+        modalProps={{
+          isBlocking: false,
+        }}
+      >
+        <TextField
+          label="Remark"
+          multiline
+          rows={3}
+          value={remark}
+          onChange={(_, newValue) => setRemark(newValue || '')}
+          required
+        />
+        <DialogFooter>
+          <PrimaryButton onClick={handleRejectSave} text="Save" />
+          <DefaultButton onClick={() => { setShowRejectModal(false); setRemark(''); }} text="Cancel" />
+        </DialogFooter>
+      </Dialog>
+
       {/* Search and Page Size Controls */}
-      {activeTab === "OnGoing" && (
+      {activeTab === "Pending" && (
         <div>
           <div className={`table-controls d-flex mb-3 flex-wrap `} style={{marginLeft: '2%'}} >
             <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
@@ -205,6 +381,7 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
             <table className={`Table responsive-table `} >
               <thead className="Table-header">
                 <tr className="Header-rows">
+                  <th className='Header-data'><Checkbox checked={allSelected} onChange={toggleSelectAll} /></th>
                   {columnsConfig.map(col => (
                     <th key = {col.key} className='Header-data'>{col.header}</th>
                   ))}
@@ -217,48 +394,16 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
                       key={index}
                       className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
                     >
-                      <td className="Body-data">{item.ModulesName || "-"}</td>
+                      <td className="Body-data"><Checkbox checked={selectedItems.includes(item.Id)} onChange={() => toggleSelect(item.Id)} /></td>
+                      <td className="Body-data">{item.Position || "-"}</td>
+                      <td className="Body-data">{item.ModuleName || "-"}</td>
                       <td className="Body-data">{item.Level || "-"}</td>
                       <td className="Body-data">{item.BatchName || "-"}</td>
-                      <td className="Body-data">{item.StartDate || "-"}</td>
-                      <td className="Body-data">{item.EndDate || "-"}</td>
-                      <td className="Body-data">{item.TrainerNames || "-"}</td>
-                      <td className="Body-data">{item.TrainerNameNew || "-"}</td>
-                      <td className="Body-data">{item.Duration || "-"}</td>
-                      <td className="Body-data">{item.TrainingTime || "-"}</td>
-                      <td className="Body-data">{item.Venue || "-"}</td>
-                      <td className="Body-data">{item.Unscheduled || "-"}</td>
-                      <td className="Body-data">{item.BatchType || "-"}</td>
-                      <td className="Body-data">
-                        <FontAwesomeIcon
-                          icon={faTimes}
-                          size="lg"
-                          style={{ color: '#d13438', cursor: 'pointer' }}
-                          title="Cancel"
-                          //onClick={() => handleCancel(item)}
-                        />
-                        <FontAwesomeIcon
-                          icon={faPlus}
-                          size="lg"
-                          style={{ color: '#107c10', cursor: 'pointer', marginLeft: '10px' }}
-                          title="Add"
-                          onClick={() => history.push(`/EmployeeBatchAllocation?BatchID=${item.Id}`)}
-                        />
-                        <FontAwesomeIcon
-                          icon={faEdit}
-                          size="lg"
-                          style={{ color: '#d13438', cursor: 'pointer', marginLeft: '10px' }}
-                          title="Edit"
-                          //onClick={() => handleUpdate(item)}
-                        />
-                        <FontAwesomeIcon
-                          icon={faEye}
-                          size="lg"
-                          style={{ color: '#d13438', cursor: 'pointer', marginLeft: '10px' }}
-                          title="View"
-                          onClick={() => history.push(`/ViewAllocatedEmployee?BatchID=${item.Id}`)}
-                        />
-                      </td>
+                      <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
+                      <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
+                      <td className="Body-data">{item.EmployeeID || "-"}</td>
+                      <td className="Body-data">{item.EmployeeName || "-"}</td>
+                      <td className="Body-data">{item.Department || "-"}</td>
                     </tr>
                   ))
                 ) : (
@@ -312,7 +457,7 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
           </div>
         </div>
       )}
-      {activeTab === "Completed" && (
+      {activeTab === "Approved" && (
         <div>
           <div className={`table-controls d-flex mb-3 flex-wrap `} style={{marginLeft: '2%'}} >
             <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
@@ -353,18 +498,15 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
                   {/* {columnsConfig.map(col => (
                     <th key = {col.key} className='Header-data'>{col.header}</th>
                   ))} */}
-                  <th className='Header-data'>Module</th>
-                  <th className='Header-data'>Level</th>
+                  <th className="Header-data">Position</th>
+                  <th className="Header-data">Module</th>
+                  <th className="Header-data">Level</th>
                   <th className="Header-data">Batch Name</th>
-                  <th className="Header-data">Start Date</th>
-                  <th className="Header-data">End Date</th>
-                  <th className="Header-data">Trainer1</th>
-                  <th className="Header-data">Trainer2</th>
-                  <th className="Header-data">Duration</th>
-                  <th className="Header-data">Training Time</th>
-                  <th className="Header-data">Venue</th>
-                  <th className="Header-data">Unscheduled</th>
-                  <th className="Header-data">Batch Type</th>
+                  <th className="Header-data">Batch Start Date</th>
+                  <th className="Header-data">Batch End Date</th>
+                  <th className="Header-data">Employee ID</th>
+                  <th className="Header-data">Employee Name</th>
+                  <th className="Header-data">Department</th>
                 </tr>
               </thead>
               <tbody className={`Table-body `} >
@@ -374,18 +516,15 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
                       key={index}
                       className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
                     >
-                      <td className="Body-data">{item.ModulesName || "-"}</td>
+                      <td className="Body-data">{item.Position || "-"}</td>
+                      <td className="Body-data">{item.ModuleName || "-"}</td>
                       <td className="Body-data">{item.Level || "-"}</td>
                       <td className="Body-data">{item.BatchName || "-"}</td>
-                      <td className="Body-data">{item.StartDate || "-"}</td>
-                      <td className="Body-data">{item.EndDate || "-"}</td>
-                      <td className="Body-data">{item.TrainerNames || "-"}</td>
-                      <td className="Body-data">{item.TrainerNameNew || "-"}</td>
-                      <td className="Body-data">{item.Duration || "-"}</td>
-                      <td className="Body-data">{item.TrainingTime || "-"}</td>
-                      <td className="Body-data">{item.Venue || "-"}</td>
-                      <td className="Body-data">{item.Unscheduled || "-"}</td>
-                      <td className="Body-data">{item.BatchType || "-"}</td>
+                      <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
+                      <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
+                      <td className="Body-data">{item.EmployeeID || "-"}</td>
+                      <td className="Body-data">{item.EmployeeName || "-"}</td>
+                      <td className="Body-data">{item.Department || "-"}</td>
                     </tr>
                   ))
                 ) : (
@@ -439,7 +578,7 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
           </div>
         </div> 
       )}
-      {activeTab === "Cancelled" && (
+      {activeTab === "Rejected" && (
         <div>
           <div className={`table-controls d-flex mb-3 flex-wrap `} style={{marginLeft: '2%'}} >
             <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
@@ -480,19 +619,15 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
                   {/* {columnsConfig.map(col => (
                     <th key = {col.key} className='Header-data'>{col.header}</th>
                   ))} */}
-                  <th className='Header-data'>Module</th>
-                  <th className='Header-data'>Level</th>
+                  <th className="Header-data">Position</th>
+                  <th className="Header-data">Module</th>
+                  <th className="Header-data">Level</th>
                   <th className="Header-data">Batch Name</th>
-                  <th className="Header-data">Start Date</th>
-                  <th className="Header-data">End Date</th>
-                  <th className="Header-data">Trainer1</th>
-                  <th className="Header-data">Trainer2</th>
-                  <th className="Header-data">Duration</th>
-                  <th className="Header-data">Training Time</th>
-                  <th className="Header-data">Venue</th>
-                  <th className="Header-data">Unscheduled</th>
-                  <th className="Header-data">Batch Type</th>
-                  <th className="Header-data">Reason for cancellation</th>
+                  <th className="Header-data">Batch Start Date</th>
+                  <th className="Header-data">Batch End Date</th>
+                  <th className="Header-data">Employee ID</th>
+                  <th className="Header-data">Employee Name</th>
+                  <th className="Header-data">Department</th>
                 </tr>
               </thead>
               <tbody className={`Table-body `} >
@@ -502,19 +637,15 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
                       key={index}
                       className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
                     >
-                      <td className="Body-data">{item.ModulesName || "-"}</td>
+                      <td className="Body-data">{item.Position || "-"}</td>
+                      <td className="Body-data">{item.ModuleName || "-"}</td>
                       <td className="Body-data">{item.Level || "-"}</td>
                       <td className="Body-data">{item.BatchName || "-"}</td>
-                      <td className="Body-data">{item.StartDate || "-"}</td>
-                      <td className="Body-data">{item.EndDate || "-"}</td>
-                      <td className="Body-data">{item.TrainerNames || "-"}</td>
-                      <td className="Body-data">{item.TrainerNameNew || "-"}</td>
-                      <td className="Body-data">{item.Duration || "-"}</td>
-                      <td className="Body-data">{item.TrainingTime || "-"}</td>
-                      <td className="Body-data">{item.Venue || "-"}</td>
-                      <td className="Body-data">{item.Unscheduled || "-"}</td>
-                      <td className="Body-data">{item.BatchType || "-"}</td>
-                      <td className="Body-data">{item.BatchCancelRemark || "-"}</td>
+                      <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
+                      <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
+                      <td className="Body-data">{item.EmployeeID || "-"}</td>
+                      <td className="Body-data">{item.EmployeeName || "-"}</td>
+                      <td className="Body-data">{item.Department || "-"}</td>
                     </tr>
                   ))
                 ) : (

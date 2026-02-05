@@ -12,7 +12,9 @@ export interface IBatchCreationDashboard {
   // Batch details
   BatchName?: any;
   BatchType?: any;
+  TrainerNamesId?: any;
   TrainerNames?: any;
+  TrainerNameNewId?: any;
   TrainerNameNew?: any;
   TrainerType1?: any;
   TrainerType2?: any;
@@ -40,7 +42,9 @@ export interface IBatchCreationDashboard {
   FinancialYear?: any;
   Level?: any;
   ModulesName?: any;
+  ModulesNameId?: any;
   Position?: any;
+  VenueId?: any;
   Venue?: any;
 }
 

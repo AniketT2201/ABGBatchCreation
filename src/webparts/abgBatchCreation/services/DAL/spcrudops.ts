@@ -5,7 +5,7 @@ import { HttpClient, HttpClientResponse } from '@microsoft/sp-http';
 import { IAbgBatchCreationProps } from "../../components/IAbgBatchCreationProps";
 
 export interface ISPCRUDOPS {
-    getData(listName: string, columnsToRetrieve: string, columnsToExpand: string, filters: string, orderby: { column: string, isAscending: boolean }, props: IAbgBatchCreationProps): Promise<any>;
+    getData(listName: string, columnsToRetrieve: string, columnsToExpand: string, filters: string, orderby: { column: string, isAscending: boolean }, props: IAbgBatchCreationProps): Promise<any[]>;
     getRootData(listName: string, columnsToRetrieve: string, columnsToExpand: string, filters: string, orderby: { column: string, isAscending: boolean }, props: IAbgBatchCreationProps): Promise<any>;
     getItemData(listName: string, id: number, select: string, expand: string, props: IAbgBatchCreationProps): Promise<any>;
     insertData(listName: string, data: any, props: IAbgBatchCreationProps): Promise<any>;
@@ -34,7 +34,7 @@ export interface ISPCRUDOPS {
 
 
 class SPCRUDOPSImpl implements ISPCRUDOPS {
-    async getData(listName: string, columnsToRetrieve: string, columnsToExpand: string, filters: string, orderby: { column: string, isAscending: boolean }, props: IAbgBatchCreationProps): Promise<any> {
+    async getData(listName: string, columnsToRetrieve: string, columnsToExpand: string, filters: string, orderby: { column: string, isAscending: boolean }, props: IAbgBatchCreationProps): Promise<any[]> {
         if (!props.currentSPContext || !props.currentSPContext.pageContext) {
             throw new Error('SharePoint context is not available');
         }
@@ -49,10 +49,21 @@ class SPCRUDOPSImpl implements ISPCRUDOPS {
         if (filters) {
             items = items.filter(filters);
         }
-        if (orderby) {
+        if (orderby?.column) {
             items = items.orderBy(orderby.column, orderby.isAscending);
         }
-        return await items.getAll();
+
+        const allItems: any[] = [];
+
+        let pagedResult = await items.top(5000).getPaged();
+        allItems.push(...pagedResult.results);
+
+        while (pagedResult.hasNext) {
+            pagedResult = await pagedResult.getNext();
+            allItems.push(...pagedResult.results);
+        }
+
+        return allItems;
     }
 
     async getRootData(listName: string, columnsToRetrieve: string, columnsToExpand: string, filters: string, orderby: { column: string, isAscending: boolean }, props: IAbgBatchCreationProps): Promise<any> {
