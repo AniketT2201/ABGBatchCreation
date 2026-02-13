@@ -1,34 +1,25 @@
-import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import type { IAbgBatchCreationProps } from '../IAbgBatchCreationProps';
-import { useHistory } from 'react-router-dom';
-import { CSVLink } from "react-csv";
-import { Icon } from '@fluentui/react/lib/Icon';
-import DashboardOps from '../../services/BAL/BatchCreationDashboard';
-import logo from '../../assets/ABGlogo.jpg';
-import { Search24Regular } from "@fluentui/react-icons";
-import { SPComponentLoader } from '@microsoft/sp-loader';
-import '../styles.scss';
-import '../TNICreation.scss';
-import { IBatchCreationDashboard } from '../../services/interface/IBatchCreationDashboard';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import * as React from "react";
+import { useState } from "react";
+import type { IAbgBatchCreationProps } from "../IAbgBatchCreationProps";
+import { useHistory } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTimes,
-  faPlus,
-  faEdit,
-  faEye
-} from '@fortawesome/free-solid-svg-icons';
-import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+  faChevronLeft,
+  faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
 import "../Calender.scss";
 
 export interface ICalendarPageProps extends IAbgBatchCreationProps {
   events?: { date: string; title?: string }[];
 }
 
-
-export const CalenderPage: React.FunctionComponent<ICalendarPageProps> = ( props) => {
+export const CalenderPage: React.FunctionComponent<ICalendarPageProps> = (
+  props
+) => {
   const history = useHistory();
   const { events = [] } = props;
+
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const year = currentDate.getFullYear();
@@ -51,58 +42,78 @@ export const CalenderPage: React.FunctionComponent<ICalendarPageProps> = ( props
     );
 
   return (
-    <div className='calenderContainer'>
-      <div className="calendar-container">
-        <div className='cancleIcon'>
-          <FontAwesomeIcon
-            icon={faTimes}
-            size="lg"
-            //style={{ color: '#d13438', cursor: 'pointer', top: '10px', right: '10px', position: 'absolute' }}
-            title="Cancel"
-            onClick={() => history.push("/")}
-          />
-        </div>
+    <div className="bigCalendarPage">
+      <div className="bigCalendarContainer">
+
+        {/* Cancel / Close */}
+        <FontAwesomeIcon
+          icon={faTimes}
+          className="bigCalendarCancelIcon"
+          title="Close"
+          onClick={() => history.push("/")}
+        />
+
         {/* Header */}
-        <div className="calendar-header">
-          <FontAwesomeIcon
-            icon={faChevronLeft}
-            onClick={() => changeMonth(-1)}
-            className="nav-icon"
-          />
-          <h3>
+        <div className="bigCalendarHeader">
+          <div className="bigCalendarTitle">
             {currentDate.toLocaleString("default", { month: "long" })} {year}
-          </h3>
-          <FontAwesomeIcon
-            icon={faChevronRight}
-            onClick={() => changeMonth(1)}
-            className="nav-icon"
-          />
+          </div>
+
+          <div className="bigCalendarNav">
+            <FontAwesomeIcon
+              icon={faChevronLeft}
+              className="bigCalendarNavIcon"
+              onClick={() => changeMonth(-1)}
+            />
+            <FontAwesomeIcon
+              icon={faChevronRight}
+              className="bigCalendarNavIcon"
+              onClick={() => changeMonth(1)}
+            />
+          </div>
         </div>
-        {/* Week Days */}
-        <div className="calendar-weekdays">
+
+        {/* Weekdays */}
+        <div className="bigCalendarWeekdays">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div key={day}>{day}</div>
           ))}
         </div>
-        {/* Days */}
-        <div className="calendar-grid">
+
+        {/* Calendar Grid */}
+        <div className="bigCalendarGrid">
+          {/* Empty cells */}
           {[...Array(firstDayOfMonth)].map((_, i) => (
-            <div key={`empty-${i}`} className="calendar-cell empty"></div>
+            <div
+              key={`empty-${i}`}
+              className="bigCalendarCell empty"
+            />
           ))}
+
+          {/* Days */}
           {[...Array(daysInMonth)].map((_, i) => {
             const day = i + 1;
+
             const isToday =
               day === today.getDate() &&
               month === today.getMonth() &&
               year === today.getFullYear();
+
             return (
               <div
                 key={day}
-                className={`calendar-cell ${isToday ? "today" : ""}`}
+                className={`bigCalendarCell ${isToday ? "today" : ""}`}
                 onClick={() => console.log("Clicked day:", day)}
               >
-                <span>{day}</span>
-                {hasEvent(day) && <div className="event-dot"></div>}
+                <div className="bigCalendarDate">{day}</div>
+
+                {hasEvent(day) && (
+                  <div className="bigCalendarEvents">
+                    <div className="bigCalendarEvent">
+                      Batch Created
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

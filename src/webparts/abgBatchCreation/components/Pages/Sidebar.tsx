@@ -1,73 +1,107 @@
-import * as React from 'react';
-import './CSS/sidebar.scss';
-import {
-  Home24Regular,
-  ChartMultiple24Regular,
-  Folder24Regular,
-  TaskListAdd24Regular,
-  Chat24Regular,
-  Settings24Regular,
-  SignOut24Regular
-} from '@fluentui/react-icons';
+import React, { useState, useEffect } from 'react';
+import { Nav, IconButton } from '@fluentui/react';
+import { initializeIcons } from '@fluentui/font-icons-mdl2';
+import { INavLinkGroup } from '@fluentui/react';
+import { useHistory, useLocation } from 'react-router-dom';
+import './CSS/SidebarLightPremium.scss';
+import { IAbgBatchCreationProps } from '../IAbgBatchCreationProps';
 
-interface ISidebarItem {
-  key: string;
-  label: string;
-  icon: JSX.Element;
-}
+initializeIcons();
 
-const navItems: ISidebarItem[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: <Home24Regular /> },
-  { key: 'analytics', label: 'Analytics', icon: <ChartMultiple24Regular /> },
-  { key: 'projects', label: 'Projects', icon: <Folder24Regular /> },
-  { key: 'tasks', label: 'Tasks', icon: <TaskListAdd24Regular /> },
-  { key: 'messages', label: 'Messages', icon: <Chat24Regular /> },
-  { key: 'settings', label: 'Settings', icon: <Settings24Regular /> }
-];
+const Sidebar = (props: IAbgBatchCreationProps) => {
+  const history = useHistory();
+  const location = useLocation();
+  const username = props.userDisplayName;
 
-export const Sidebar: React.FC = () => {
-  const [active, setActive] = React.useState<string>('dashboard');
+  const [collapsed, setCollapsed] = useState(false);
+  const [activeKey, setActiveKey] = useState('TNIDashboardPage');
+
+  // 🔹 Sync active nav with URL
+  useEffect(() => {
+    setActiveKey(location.pathname.replace('/', '') || 'TNIDashboardPage');
+  }, [location.pathname]);
+
+  const navGroups: INavLinkGroup[] = [
+    {
+      name: 'TNI Creation',
+      links: [
+        { name: 'TNI Dashboard', key: 'TNIDashboardPage', url: '#', iconProps: { iconName: 'Home' } },
+        { name: 'ADD Modules', key: 'AddModules', url: '#', iconProps: { iconName: 'Add' } },
+        { name: 'TNI Creation Form', key: 'TNICreation', url: '#', iconProps: { iconName: 'Add' } },
+      ],
+    },
+    {
+      name: 'Batch Creation',
+      links: [
+        { name: 'Batch Dashboard', key: 'BatchDashboard', url: '#', iconProps: { iconName: 'Home' } },
+        { name: 'Calendar', key: 'Calender', url: '#', iconProps: { iconName: 'Calendar' } },
+        { name: 'Create Batch', key: 'BatchForm', url: '#', iconProps: { iconName: 'Add' } },
+      ],
+    },
+    {
+      name: 'Batch Allocation',
+      links: [
+        { name: 'Batch Allocation Dashboard', key: 'BatchAllocationDashboard', url: '#', iconProps: { iconName: 'Chart' } },
+        { name: 'Employee Batch Allocation', key: 'EmployeeBatchAllocation', url: '#', iconProps: { iconName: 'Org' } },
+        { name: 'View Allocated Employees', key: 'ViewAllocatedEmployee', url: '#', iconProps: { iconName: 'People' } },
+      ],
+    },
+    {
+      name: 'Supervisor Dashboard',
+      links: [
+        { name: 'Employee Supervisor Dashboard', key: 'EmployeeSupervisorDashboard', url: '#', iconProps: { iconName: 'Chart' } },
+      ],
+    },
+  ];
 
   return (
-    <aside className="sidebar">
-      {/* Logo */}
-      <div className="logo">
-        <span>X</span>
-      </div>
-
-      {/* Profile */}
-      <div className="profile">
-        <img
-          src="https://i.pravatar.cc/100?img=12"
-          alt="User"
-        />
-        <div>
-          <strong>Alex Johnson</strong>
-          <span>Admin</span>
+    <div className={`sidebar ${collapsed ? 'collapsed' : 'expanded'}`}>
+      <div className="logo-area">
+        <div className="logo">
+          <img src={require('../../assets/ABGlogo.jpg')} alt="Aditya Birla Logo" />
         </div>
+        {!collapsed && (
+          <div>
+            <div className="brand-title">Aditya Birla</div>
+            <div className="brand-subtitle">ENTERPRISE HUB</div>
+          </div>
+        )}
+      </div>
+      <div className="sidebar-user">
+        <div className="user-avatar">
+          <i className="fa fa-user"></i>
+        </div>
+
+        {!collapsed && (
+          <div className="user-details">
+            <div className="user-name">{username}</div>
+          </div>
+        )}
       </div>
 
-      {/* Navigation */}
-      <nav className="nav">
-        {navItems.map(item => (
-          <button
-            key={item.key}
-            className={`navItem ${active === item.key ? 'active' : ''}`}
-            onClick={() => setActive(item.key)}
-          >
-            <span className="icon">{item.icon}</span>
-            <span className="label">{item.label}</span>
-          </button>
-        ))}
-      </nav>
+      <Nav
+        groups={navGroups}
+        selectedKey={activeKey}
+        onLinkClick={(ev, item) => {
+          ev?.preventDefault();
 
-      {/* Logout */}
-      <div className="logout">
-        <button>
-          <SignOut24Regular />
-          <span>Logout</span>
-        </button>
-      </div>
-    </aside>
+          if (!item?.key) return;
+
+          if (item.key === 'TNIDashboardPage') {
+            history.push('/');
+          } else {
+            history.push(`/${item.key}`);
+          }
+        }}
+      />
+
+      <IconButton
+        iconProps={{ iconName: collapsed ? 'DoubleChevronRight12' : 'DoubleChevronLeft12' }}
+        className="toggle-btn"
+        onClick={() => setCollapsed(!collapsed)}
+      />
+    </div>
   );
 };
+
+export default Sidebar;

@@ -498,7 +498,7 @@ export const EmployeeBatchAllocation: React.FunctionComponent<IAbgBatchCreationP
 
 
   return (
-    <div className="additional-modules-section">
+    <div className="pageContainer">
       {/* SPINNER */}
       {loading && !isAllocating && (
         <div className="loadingOverlay1">
@@ -543,330 +543,323 @@ export const EmployeeBatchAllocation: React.FunctionComponent<IAbgBatchCreationP
           )}
         </div>
       )}
-      
-      <h1 className='section-title'>Batch Details</h1>
-
-      <div className="form-card">
-        <div className="form-row">
-          <div className="form-group">
-            <label>Batch</label>
-            <select
-                value={selectedBatch}
-                onChange={(e) => {
-                  handlebatchChange(e.target.value);
-                }}
-              >
-                <option value="">Select</option>
-                {batch.map((item) => (
-                  <option key={item.Id} value={item.BatchName}>
-                    {item.BatchName}
-                  </option>
-                ))}
-              </select>
-          </div>
-          <div className="form-group">
-            <label>Financial Year</label>
-            <select
-                value={selectedFinancialYear}
-                onChange={(e) => {
-                  setSelectedFinancialYear(e.target.value);
-                }}
-              >
-                <option value="">Select</option>
-                {financialYear.map((item) => (
-                  <option key={item.Title} value={item.FinancialYear}>
-                    {item.FinancialYear}
-                  </option>
-                ))}
-              </select>
-          </div>
+      <div className="stickyHeader">
+        <div className="tniHeader">
+          <h1 className="popup-header">Employee Batch Allocation</h1>
         </div>
       </div>
-
-      {/* Standard Modules Table */}
-        <div className="Table-container">
-          <h2 className='section-title'>Batch Details</h2>
-          <div className={"table-controls d-flex mt-3 flex-wrap"}>
-            <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
-              <Search24Regular className='searchIcon' />
-              <input
-                className='table-search'
-                type='text'
-                placeholder='Search Modules...'
-                value={batchSearch}
-                onChange={(e) => {
-                  setBatchSearch(e.target.value);
-                  setBatchPage(1);
-                }}
-                style={{ maxWidth: '300px', paddingLeft: '38px' }}
-              />
-            </div>
-            <div className="page-size-container mb-2" style={{height: 'auto'}}>
-              <label htmlFor="rowsPerPage" className="me-2 font-medium">Batch Details</label>
+      {/* PAGE CONTENT */}
+      <div className="pageContent">
+        <h1 className='section-title'>Batch Details</h1>
+        <div className="form-card">
+          <div className="form-row">
+            <div className="form-group">
+              <label>Batch</label>
               <select
-                id="rowsPerPage"
-                className="rows-dropdown"
-                value={rowsPerPage}
-                onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
-                  setBatchPage(1);
-                }}
-                style={{ width: 'auto', display: 'inline-block' }}
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
+                  value={selectedBatch}
+                  onChange={(e) => {
+                    handlebatchChange(e.target.value);
+                  }}
+                >
+                  <option value="">Select</option>
+                  {batch.map((item) => (
+                    <option key={item.Id} value={item.BatchName}>
+                      {item.BatchName}
+                    </option>
+                  ))}
+                </select>
+            </div>
+            <div className="form-group">
+              <label>Financial Year</label>
+              <select
+                  value={selectedFinancialYear}
+                  onChange={(e) => {
+                    setSelectedFinancialYear(e.target.value);
+                  }}
+                >
+                  <option value="">Select</option>
+                  {financialYear.map((item) => (
+                    <option key={item.Title} value={item.FinancialYear}>
+                      {item.FinancialYear}
+                    </option>
+                  ))}
+                </select>
             </div>
           </div>
-          {/* <div className="selected-count">
-            <strong>Selected Modules:</strong> {selectedBatchRows.length} / {filteredBatch.length}
-          </div> */}
-
-          <table className="Table responsive-table ">
-            <thead className="Table-header">
-              <tr className="Header-rows">
-                {/* <th className='Header-data'>
-                  <input
-                    type='checkbox'
-                    checked={selectAllBatch}
-                    onChange={toggleSelectAllModules}
-                  />
-                </th> */}
-                <th className='Header-data'>Module</th>
-                <th className='Header-data'>Level</th>
-                <th className='Header-data'>Batch Name</th>
-                <th className='Header-data'>Batch Start Date</th>
-                <th className='Header-data'>Batch End Date</th>
-                <th className='Header-data'>Batch Intake</th>
-                <th className='Header-data'>Duration</th>
-                <th className='Header-data'>Unsheduled</th>
-                <th className='Header-data'>Trainer Name 1</th>
-                <th className='Header-data'>Trainer Name 2</th>
-              </tr>
-            </thead>
-            <tbody className={`Table-body `}>
-              {filteredBatch.map((m, index) => {
-                //const globalIndex = moduleStart + index;
-                return (
-                  <tr key={index}
-                    //onClick={() => toggleModuleRow(globalIndex)}
-                    className={`Body-rows ${index % 2 === 0 ? "even" : "odd"}`}
-                    style={{
-                      backgroundColor: selectedBatch.includes(index as any) ? "#e6f7ff" : "white",
-                      cursor: "pointer",
-                      border: "1px solid #ddd",
-                    }}
-                  >
-                    {/* <td className="Body-data">
-                      <input
-                        type="checkbox"
-                        checked={selectedBatchRows.includes(globalIndex)}
-                        readOnly
-                      />
-                    </td> */}
-                    <td className="Body-data">{m.ModulesName || "-"}</td>
-                    <td className="Body-data">{m.Level || "-"}</td>
-                    <td className="Body-data">{m.BatchName || "-"}</td>
-                    <td className="Body-data">{formatDate(m.BatchStartDate) || "-"}</td>
-                    <td className="Body-data">{formatDate(m.BatchEndDate) || "-"}</td>
-                    <td className="Body-data">{m.BatchIntake || "-"}</td>
-                    <td className="Body-data">{m.Duration || "-"}</td>
-                    <td className="Body-data">{m.Unscheduled || "-"}</td>
-                    <td className="Body-data">{m.TrainerNames || "-"}</td>
-                    <td className="Body-data">{m.TrainerNameNew || "-"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {/* <div className="pagination-container">
-            <div className="pagination-info">
-              Showing {moduleStart + 1}–{Math.min(moduleStart + rowsPerPage, filteredModuleList.length)}
-              {" "}of {filteredModuleList.length} entries
-            </div>
-
-            <div className="pagination-buttons">
-              <button className="pg-btn" disabled={modulePage === 1} onClick={() => setModulePage(1)}>⏮</button>
-              <button className="pg-btn" disabled={modulePage === 1} onClick={() => setModulePage(p => p - 1)}>◀</button>
-
-              <span className="pg-number">Page {modulePage}</span>
-
-              <button
-                className="pg-btn"
-                disabled={modulePage >= Math.ceil(filteredModuleList.length / rowsPerPage)}
-                onClick={() => setModulePage(p => p + 1)}
-              >▶</button>
-
-              <button
-                className="pg-btn"
-                disabled={modulePage >= Math.ceil(filteredModuleList.length / rowsPerPage)}
-                onClick={() => setModulePage(Math.ceil(filteredModuleList.length / rowsPerPage))}
-              >⏭</button>
-            </div>
-          </div> */}
-
-          <button 
-            type='button'
-            onClick={handleViewTnidetailss}
-            className='viewBtn'
-          >
-            View
-          </button>
         </div>
-
-      {/* Eligible Employee Table */}
-      {showTnidetails  && (
-        <div className="Table-container">
-          <h2 className='section-title'>TNI Details</h2>
-          <div className={"table-controls d-flex mt-3 flex-wrap"}>
-            <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
-              <Search24Regular className='searchIcon' />
-              <input
-                className='table-search'
-                type='text'
-                placeholder='Search Employees...'
-                value={tnidetailsSearch}
-                onChange={(e) => {
-                  setTnidetailsSearch(e.target.value);
-                  setTnidetailsPage(1);
-                }}
-                style={{ maxWidth: '300px', paddingLeft: '38px'}}
-              />
+        {/* Standard Modules Table */}
+          <div className="Table-container">
+            <h2 className='section-title'>Batch Details</h2>
+            <div className={"table-controls d-flex mt-3 flex-wrap"}>
+              <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
+                <Search24Regular className='searchIcon' />
+                <input
+                  className='table-search'
+                  type='text'
+                  placeholder='Search Modules...'
+                  value={batchSearch}
+                  onChange={(e) => {
+                    setBatchSearch(e.target.value);
+                    setBatchPage(1);
+                  }}
+                  style={{ maxWidth: '300px', paddingLeft: '38px' }}
+                />
+              </div>
+              <div className="page-size-container mb-2" style={{height: 'auto'}}>
+                <label htmlFor="rowsPerPage" className="me-2 font-medium">Batch Details</label>
+                <select
+                  id="rowsPerPage"
+                  className="rows-dropdown"
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    setBatchPage(1);
+                  }}
+                  style={{ width: 'auto', display: 'inline-block' }}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
             </div>
-            <div className="page-size-container mb-2" style={{height: 'auto'}}>
-              <label htmlFor="rowsPerPage" className="me-2 font-medium">Show Entries: </label>
-              <select
-                id="rowsPerPage"
-                className="rows-dropdown"
-                value={rowsPerPage}
-                onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
-                  setTnidetailsPage(1);
-                }}
-                style={{ width: 'auto', display: 'inline-block' }}
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-          </div>
-          <div className="selected-count">
-            <strong>Selected Employees:</strong> {selectedTnidetailsRows.length} / {tnidetails.length}
-          </div>
-
-          <table className="Table responsive-table">
-            <thead className="Table-header">
-              <tr className="Header-rows">
-                <th className='Header-data'>
-                  <input
-                    type='checkbox'
-                    checked={selectAllTnidetails}
-                    onChange={toggleSelectAllTnidetailss}
-                  />
-                </th>
-                <th className='Header-data'>Position</th>
-                <th className='Header-data'>Modules</th>
-                <th className='Header-data'>Level</th>
-                <th className='Header-data'>TNIDepartment</th>
-                <th className='Header-data'>Department</th>
-                <th className='Header-data'>EmployeeID</th>
-                <th className='Header-data'>EmployeeName</th>
-              </tr>
-            </thead>
-            <tbody className="Table-body">
-              {TnidetailsPaginated.map((e, index) => {
-                const globalIndex = empStart + index;
-
-                return (
-                  <tr
-                    key={index}
-                    onClick={() => toggleTnidetailsRow(globalIndex)}
-                    className={`Body-rows ${index % 2 === 0 ? "even" : "odd"}`}
-                    style={{
-                      backgroundColor: selectedTnidetailsRows.includes(globalIndex) ? "#e6f7ff" : "white",
-                      cursor: "pointer",
-                      border: "1px solid #ddd",
-                    }}
-                  >
-                    <td className="Body-data">
+            {/* <div className="selected-count">
+              <strong>Selected Modules:</strong> {selectedBatchRows.length} / {filteredBatch.length}
+            </div> */}
+            <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+              <table className="Table responsive-table ">
+                <thead className="Table-header">
+                  <tr className="Header-rows">
+                    {/* <th className='Header-data'>
                       <input
-                        type="checkbox"
-                        checked={selectedTnidetailsRows.includes(globalIndex)}
-                        readOnly
+                        type='checkbox'
+                        checked={selectAllBatch}
+                        onChange={toggleSelectAllModules}
                       />
-                    </td>
-
-                    <td className="Body-data">{e.Position || "-"}</td>
-                    <td className="Body-data">{e.Modules || "-"}</td>
-                    <td className="Body-data">{e.Level || "-"}</td>
-                    <td className="Body-data">{e.TNIDepartment || "-"}</td>
-                    <td className="Body-data">{e.Department || "-"}</td>
-                    <td className="Body-data">{e.EmployeeID || "-"}</td>
-                    <td className="Body-data">{e.EmployeeName || "-"}</td>
+                    </th> */}
+                    <th className='Header-data'>Module</th>
+                    <th className='Header-data'>Level</th>
+                    <th className='Header-data'>Batch Name</th>
+                    <th className='Header-data'>Batch Start Date</th>
+                    <th className='Header-data'>Batch End Date</th>
+                    <th className='Header-data'>Batch Intake</th>
+                    <th className='Header-data'>Duration</th>
+                    <th className='Header-data'>Unsheduled</th>
+                    <th className='Header-data'>Trainer Name 1</th>
+                    <th className='Header-data'>Trainer Name 2</th>
                   </tr>
-                );
-              })}
-            </tbody>
-
-          </table>
-          <div className="pagination-container">
-            <div className="pagination-info">
-              Showing {empStart + 1}–{Math.min(empStart + rowsPerPage, filteredTnidetailsList.length)}
-              {" "}of {filteredTnidetailsList.length} entries
+                </thead>
+                <tbody className={`Table-body `}>
+                  {filteredBatch.map((m, index) => {
+                    //const globalIndex = moduleStart + index;
+                    return (
+                      <tr key={index}
+                        //onClick={() => toggleModuleRow(globalIndex)}
+                        className={`Body-rows ${index % 2 === 0 ? "even" : "odd"}`}
+                        style={{
+                          backgroundColor: selectedBatch.includes(index as any) ? "#e6f7ff" : "white",
+                          cursor: "pointer",
+                          border: "1px solid #ddd",
+                        }}
+                      >
+                        {/* <td className="Body-data">
+                          <input
+                            type="checkbox"
+                            checked={selectedBatchRows.includes(globalIndex)}
+                            readOnly
+                          />
+                        </td> */}
+                        <td className="Body-data">{m.ModulesName || "-"}</td>
+                        <td className="Body-data">{m.Level || "-"}</td>
+                        <td className="Body-data">{m.BatchName || "-"}</td>
+                        <td className="Body-data">{formatDate(m.BatchStartDate) || "-"}</td>
+                        <td className="Body-data">{formatDate(m.BatchEndDate) || "-"}</td>
+                        <td className="Body-data">{m.BatchIntake || "-"}</td>
+                        <td className="Body-data">{m.Duration || "-"}</td>
+                        <td className="Body-data">{m.Unscheduled || "-"}</td>
+                        <td className="Body-data">{m.TrainerNames || "-"}</td>
+                        <td className="Body-data">{m.TrainerNameNew || "-"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-
-            <div className="pagination-buttons">
-              <button className="pg-btn" disabled={tnidetailsPage === 1} onClick={() => setTnidetailsPage(1)}>⏮</button>
-              <button className="pg-btn" disabled={tnidetailsPage === 1} onClick={() => setTnidetailsPage(p => p - 1)}>◀</button>
-
-              <span className="pg-number">Page {tnidetailsPage}</span>
-
-              <button
-                className="pg-btn"
-                disabled={tnidetailsPage >= Math.ceil(filteredTnidetailsList.length / rowsPerPage)}
-                onClick={() => setTnidetailsPage(p => p + 1)}
-              >▶</button>
-
-              <button
-                className="pg-btn"
-                disabled={tnidetailsPage >= Math.ceil(filteredTnidetailsList.length / rowsPerPage)}
-                onClick={() => setTnidetailsPage(Math.ceil(filteredTnidetailsList.length / rowsPerPage))}
-              >⏭</button>
-            </div>
-          </div>
-
-          <div style={{display: "flex", justifyContent: "center"}}>
+            {/* <div className="pagination-container">
+              <div className="pagination-info">
+                Showing {moduleStart + 1}–{Math.min(moduleStart + rowsPerPage, filteredModuleList.length)}
+                {" "}of {filteredModuleList.length} entries
+              </div>
+              <div className="pagination-buttons">
+                <button className="pg-btn" disabled={modulePage === 1} onClick={() => setModulePage(1)}>⏮</button>
+                <button className="pg-btn" disabled={modulePage === 1} onClick={() => setModulePage(p => p - 1)}>◀</button>
+                <span className="pg-number">Page {modulePage}</span>
+                <button
+                  className="pg-btn"
+                  disabled={modulePage >= Math.ceil(filteredModuleList.length / rowsPerPage)}
+                  onClick={() => setModulePage(p => p + 1)}
+                >▶</button>
+                <button
+                  className="pg-btn"
+                  disabled={modulePage >= Math.ceil(filteredModuleList.length / rowsPerPage)}
+                  onClick={() => setModulePage(Math.ceil(filteredModuleList.length / rowsPerPage))}
+                >⏭</button>
+              </div>
+            </div> */}
             <button
               type='button'
-              disabled={loading}
-              onClick={() => handleAllocateBatch(false)}
-              className='batchallocationbtn'
+              onClick={handleViewTnidetailss}
+              className='viewBtn'
             >
-              Allocate Batch
+              View
             </button>
-            {!batchTypeFlag && (
+          </div>
+        {/* Eligible Employee Table */}
+        {showTnidetails  && (
+          <div className="Table-container">
+            <h2 className='section-title'>TNI Details</h2>
+            <div className={"table-controls d-flex mt-3 flex-wrap"}>
+              <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
+                <Search24Regular className='searchIcon' />
+                <input
+                  className='table-search'
+                  type='text'
+                  placeholder='Search Employees...'
+                  value={tnidetailsSearch}
+                  onChange={(e) => {
+                    setTnidetailsSearch(e.target.value);
+                    setTnidetailsPage(1);
+                  }}
+                  style={{ maxWidth: '300px', paddingLeft: '38px'}}
+                />
+              </div>
+              <div className="page-size-container mb-2" style={{height: 'auto'}}>
+                <label htmlFor="rowsPerPage" className="me-2 font-medium">Show Entries: </label>
+                <select
+                  id="rowsPerPage"
+                  className="rows-dropdown"
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    setTnidetailsPage(1);
+                  }}
+                  style={{ width: 'auto', display: 'inline-block' }}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+            </div>
+            <div className="selected-count">
+              <strong>Selected Employees:</strong> {selectedTnidetailsRows.length} / {tnidetails.length}
+            </div>
+            <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+              <table className="Table responsive-table">
+                <thead className="Table-header">
+                  <tr className="Header-rows">
+                    <th className='Header-data'>
+                      <input
+                        type='checkbox'
+                        checked={selectAllTnidetails}
+                        onChange={toggleSelectAllTnidetailss}
+                      />
+                    </th>
+                    <th className='Header-data'>Position</th>
+                    <th className='Header-data'>Modules</th>
+                    <th className='Header-data'>Level</th>
+                    <th className='Header-data'>TNIDepartment</th>
+                    <th className='Header-data'>Department</th>
+                    <th className='Header-data'>EmployeeID</th>
+                    <th className='Header-data'>EmployeeName</th>
+                  </tr>
+                </thead>
+                <tbody className="Table-body">
+                  {TnidetailsPaginated.map((e, index) => {
+                    const globalIndex = empStart + index;
+                    return (
+                      <tr
+                        key={index}
+                        onClick={() => toggleTnidetailsRow(globalIndex)}
+                        className={`Body-rows ${index % 2 === 0 ? "even" : "odd"}`}
+                        style={{
+                          backgroundColor: selectedTnidetailsRows.includes(globalIndex) ? "#e6f7ff" : "white",
+                          cursor: "pointer",
+                          border: "1px solid #ddd",
+                        }}
+                      >
+                        <td className="Body-data">
+                          <input
+                            type="checkbox"
+                            checked={selectedTnidetailsRows.includes(globalIndex)}
+                            readOnly
+                          />
+                        </td>
+                        <td className="Body-data">{e.Position || "-"}</td>
+                        <td className="Body-data">{e.Modules || "-"}</td>
+                        <td className="Body-data">{e.Level || "-"}</td>
+                        <td className="Body-data">{e.TNIDepartment || "-"}</td>
+                        <td className="Body-data">{e.Department || "-"}</td>
+                        <td className="Body-data">{e.EmployeeID || "-"}</td>
+                        <td className="Body-data">{e.EmployeeName || "-"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="pagination-container">
+              <div className="pagination-info">
+                Showing {empStart + 1}–{Math.min(empStart + rowsPerPage, filteredTnidetailsList.length)}
+                {" "}of {filteredTnidetailsList.length} entries
+              </div>
+              <div className="pagination-buttons">
+                <button className="pg-btn" disabled={tnidetailsPage === 1} onClick={() => setTnidetailsPage(1)}>⏮</button>
+                <button className="pg-btn" disabled={tnidetailsPage === 1} onClick={() => setTnidetailsPage(p => p - 1)}>◀</button>
+                <span className="pg-number">Page {tnidetailsPage}</span>
+                <button
+                  className="pg-btn"
+                  disabled={tnidetailsPage >= Math.ceil(filteredTnidetailsList.length / rowsPerPage)}
+                  onClick={() => setTnidetailsPage(p => p + 1)}
+                >▶</button>
+                <button
+                  className="pg-btn"
+                  disabled={tnidetailsPage >= Math.ceil(filteredTnidetailsList.length / rowsPerPage)}
+                  onClick={() => setTnidetailsPage(Math.ceil(filteredTnidetailsList.length / rowsPerPage))}
+                >⏭</button>
+              </div>
+            </div>
+            <div style={{display: "flex", justifyContent: "center"}}>
               <button
-                onClick={() => handleAllocateBatch(true)}
+                type='button'
                 disabled={loading}
-                className="batchallocationbtn"
+                onClick={() => handleAllocateBatch(false)}
+                className='batchallocationbtn'
               >
-                {loading ? "Processing..." : "Allocate Unscheduled Batch"}
+                Allocate Batch
               </button>
-            )}
-            <button
-              type='button'
-              onClick={() => history.push("/BatchAllocationDashboard")}
-              className='batchallocationbtn'
-            >
-              Cancel
-            </button>
+              {!batchTypeFlag && (
+                <button
+                  onClick={() => handleAllocateBatch(true)}
+                  disabled={loading}
+                  className="batchallocationbtn"
+                >
+                  {loading ? "Processing..." : "Allocate Unscheduled Batch"}
+                </button>
+              )}
+              <button
+                type='button'
+                onClick={() => history.push("/BatchAllocationDashboard")}
+                className='batchallocationbtn'
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

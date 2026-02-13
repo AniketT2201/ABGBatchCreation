@@ -1,0 +1,159 @@
+.additional-modules-section {
+  margin: 40px 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.section-title {
+  background: #A2231D;
+  color: white;
+  padding: 14px 24px;
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  border-radius: 5px 5px 0 0;
+  text-align: left;
+}
+
+.form-card {
+  background: white;
+  border: 2px solid #E8DFD3;
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* This is the key fix */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  align-items: end;
+  margin-bottom: 40px;
+}
+
+/* Force all dropdowns to have same height and behavior */
+.form-group {
+  position: relative;
+  width: 100%;
+}
+
+.form-group label {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: white;
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #424242;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.form-group select {
+  width: 100%;
+  height: 50px;
+  padding: 0 27px 0 12px;
+  border: 2px solid #D8D8D8;
+  border-radius: 6px;
+  background: white;
+  font-size: 15px;
+  color: #212121;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M1 0l5 6 5-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  /* Prevent long text from stretching */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #A2231D;
+  box-shadow: 0 0 0 3px rgba(162, 35, 29, 0.1);
+}
+
+.form-group select:hover {
+  border-color: #C5983D;
+}
+
+/* Button - same height as dropdowns */
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.add-modules-btn {
+  height: 50px;
+  padding: 0 20px;
+  background: #A2231D;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(162, 35, 29, 0.3);
+  white-space: nowrap;
+}
+
+.add-modules-btn:hover {
+  background: #8B1B17;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(162, 35, 29, 0.4);
+}
+
+/* Mobile - perfect stacking */
+@media (max-width: 992px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .button-group {
+    justify-content: center;
+  }
+  
+  .add-modules-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+.delete-btn {
+  margin-left: 10px;
+  border: none;
+  background: transparent;
+  color: #e53935;
+  cursor: pointer;
+  font-size: 16px;
+}
+.delete-btn:hover {
+  color: #b71c1c;
+}
+
+.view-emp-btn, .save-tni-btn {
+  background: #A2231D;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 10px 10px;
+  display: block;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+.view-emp-btn:hover, .save-tni-btn:hover {
+  background: #8B1B17;
+}

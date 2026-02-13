@@ -1,0 +1,254 @@
+// SidebarPremium.scss
+
+// Core surfaces
+$bg-main: #f5f7fa;
+$sidebar-bg: #ffffff;
+
+// Text
+$text-primary: #1f2937;
+$text-secondary: #6b7280;
+$text-muted: #9ca3af;
+
+// Brand
+$accent-navy: #0f172a;
+$accent-gold: #c9a227; // refined Birla gold
+$accent-gold-soft: rgba(201, 162, 39, 0.12);
+
+// Borders & elevation
+$border: #e5e7eb;
+$shadow-soft: 0 1px 2px rgba(0,0,0,0.04);
+$shadow-float: 0 8px 20px rgba(0,0,0,0.08);
+
+$birla-red: #c4161c;   // Aditya Birla corporate red
+$birla-gold: #c9a227; // premium gold
+
+
+
+.sidebar-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  background: $bg-main;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.sidebar {
+  flex: 0 0 auto;
+  background: $sidebar-bg;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  //box-shadow: 8px 0 24px rgba(0, 0, 0, 0.45);
+  transition: width 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+  position: relative;
+  z-index: 50;
+
+  &.collapsed {
+    width: 72px;
+  }
+
+  &.expanded {
+    width: 280px;
+  }
+}
+
+.sidebar.collapsed {
+  :global(.ms-Nav-groupHeaderText) {
+    display: none;
+  }
+}
+
+
+.logo-area {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(
+    180deg,
+    #fff5f5 0%,
+    #ffffff 70%
+  );
+  color: #fff;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand {
+  &-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.3px;
+  }
+
+  &-subtitle {
+    font-size: 12px;
+    color: $accent-gold;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+}
+
+.nav-list {
+  padding: 12px 0;
+
+  :global(.ms-Nav-link) {
+    height: 48px;
+    margin: 4px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-secondary;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: #f3f4f6;
+      color: $text-primary;
+    }
+
+    &.is-selected {
+      background: $accent-gold-soft;
+      color: $accent-navy;
+      font-weight: 600;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 10px;
+        bottom: 10px;
+        width: 3px;
+        background: $accent-gold;
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+.toggle-btn {
+  position: absolute;
+  right: -18px;
+  top: 80px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: $text-secondary;
+  box-shadow: $shadow-soft;
+  border: 1px solid $border;
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+
+  &:hover {
+    color: $accent-navy;
+    background: $accent-gold-soft;
+    transform: scale(1.12);
+    box-shadow: 0 12px 30px rgba(202, 138, 4, 0.35);
+  }
+}
+
+.main {
+  flex: 1 1 auto;
+  background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+  overflow-y: auto;
+
+  &-inner {
+    padding: 40px 48px;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+}
+
+.submenu {
+  padding-left: 20px;
+
+  .submenu-item {
+    height: 44px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-muted;
+    border-radius: 8px;
+
+    &:hover {
+      color: $text-primary;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    &.active {
+      color: $accent-gold;
+      font-weight: 600;
+      background: $accent-gold-soft;
+    }
+  }
+}
+
+
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 27px;
+  //margin: 8px 16px 18px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.25s ease;
+}
+
+.sidebar-user:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #111827;
+  color: #d4af37; // premium gold accent
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14.5px;
+  color: #000000;
+  letter-spacing: 0.2px;
+}
+

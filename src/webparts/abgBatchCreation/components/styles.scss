@@ -33,7 +33,11 @@ body {
 
 
 .pageContainer {
-    background: #F5F1EB;
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 0px 20px;
+  display: flex;
+  flex-direction: column;
   //background: linear-gradient(140deg, #fffffff7, #ff000fd1 180%);
 }
 /* css for menu dynamic*/
@@ -46,14 +50,25 @@ body {
   width: auto;
   border-bottom: 3px solid #4A2C20;
 }
+
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(180deg,#fff5f5,#fff 70%);
+  border-bottom: 1px solid #edebe9;
+}
+
+.tniHeader {
+  padding: 16px 24px 12px;
+}
+
 /* Popup Header */
 .popup-header {
-  color: #A2231D;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 15px;
+  margin: 0 0 12px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #323130;
 }
 
 .Logo img {
@@ -77,28 +92,55 @@ body {
   width: 96%;
 }
 
+/* ===== TABS ROW ===== */
+.tabsRow {
+  display: flex;
+  align-items: center;
+}
+
+/* ===== TABS ===== */
 .tabs {
-  display: flex;  
+  display: flex;
+  gap: 24px;
+  border-bottom: 2px solid #edebe9;
+}
 
-  .tab {
-    padding: 2px 4px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 15px;
-    color: #b71c1c;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
+/* ===== TAB ===== */
+.tab {
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #605e5c;
+  cursor: pointer;
+  position: relative;
+}
 
-    &.active {
-    //border-bottom: 3px solid #b71c1c;
-    color: #880e4f;
-    background: #f5f1eb;
-    }
+/* Hover */
+.tab:hover {
+  color: #323130;
+}
 
-    &:hover {
-    color: #d32f2f;
-    }
-  }
+/* Active tab */
+.tab.active {
+  color: #0078d4;
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  width: 100%;
+  background: #0078d4;
+  border-radius: 2px;
+}
+
+/* ===== PAGE CONTENT ===== */
+.pageContent {
+  flex: 1;
+  overflow-y: auto;
+  //padding: 24px;
 }
 
 .createFormBtnWrapper {
@@ -220,9 +262,9 @@ body {
   border: 2px solid #e8dfd3;
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   margin: 20px auto;
-  width: 96%;
-  overflow-x: auto;   /* Enables horizontal scroll */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+  width: 100%;
+  //overflow-x: auto;   /* Enables horizontal scroll */
+  //-webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
 }
 
 .Table {

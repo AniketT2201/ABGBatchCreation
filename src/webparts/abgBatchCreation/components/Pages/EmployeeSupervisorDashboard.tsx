@@ -278,427 +278,435 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
           <div className="spinner"></div>
         </div>
       )}
-      <div className={`menuWrapper `} >
+      {/* <div className={`menuWrapper `} >
         <div className ="Logo">
           <img src={logo}alt="Logo" />
         </div>
-      </div>
+      </div> */}
 
-      <div>
-        <h1 className='popup-header'>Supervisor Approval Dashboard</h1>
-        {/* <h1 className={`main-heading `} ></h1> */}
-      </div>
-      <div className='main-heading'>
-        <div className="tabs">
-          {tabs.map(tab => (
-              <div
-                key={tab.id}
-                className={`tab ${activeTab === tab.id ? "active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
+      <div className="stickyHeader">
+        <div className="tniHeader">
+          <h1 className="popup-header">Supervisor Approval Dashboard</h1>
+          <div className="tabsRow">
+            <div className="tabs">
+              {tabs.map(tab => (
+                <div
+                  key={tab.id}
+                  className={`tab ${activeTab === tab.id ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab.id)}
                 >
-                <i ></i> {tab.label}
-              </div>
-          ))}
+                  {tab.label}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-      {activeTab === "Pending" && (
-        <div className={`createFormBtnWrapper `} >
-          <button className="createFormBtn"
-            onClick={handleApprove}
-          >
-            Approved
-          </button>
-          <button className="createFormBtn"
-            onClick={handleReject}
-          >
-            Reject
-          </button>
-        </div>
-      )}
-
-      {/* Reject Modal */}
-      <Dialog
-        hidden={!showRejectModal}
-        onDismiss={() => { setShowRejectModal(false); setRemark(''); }}
-        dialogContentProps={{
-          type: DialogType.normal,
-          title: 'Enter Remark for Rejection',
-        }}
-        modalProps={{
-          isBlocking: false,
-        }}
-      >
-        <TextField
-          label="Remark"
-          multiline
-          rows={3}
-          value={remark}
-          onChange={(_, newValue) => setRemark(newValue || '')}
-          required
-        />
-        <DialogFooter>
-          <PrimaryButton onClick={handleRejectSave} text="Save" />
-          <DefaultButton onClick={() => { setShowRejectModal(false); setRemark(''); }} text="Cancel" />
-        </DialogFooter>
-      </Dialog>
-
-      {/* Search and Page Size Controls */}
-      {activeTab === "Pending" && (
-        <div>
-          <div className={`table-controls d-flex mb-3 flex-wrap `} style={{marginLeft: '2%'}} >
-            <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
-              <Search24Regular className='searchIcon' />
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ maxWidth: '300px', paddingLeft: '38px' }}
-              />
-            </div>
-            <div className="page-size-container mb-2" style={{height: 'auto'}}>
-              <label htmlFor="rowsPerPage" className="me-2 font-medium">Rows per page:</label>
-              <select
-                id="rowsPerPage"
-                className="form-select"
-                value={rowsPerPage}
-                onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page when page size changes
-                }}
-                style={{ width: 'auto', display: 'inline-block' }}
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
+      {/* PAGE CONTENT */}
+      <div className="pageContent">
+        {activeTab === "Pending" && (
+          <div className={`createFormBtnWrapper `} >
+            <button className="createFormBtn"
+              onClick={handleApprove}
+            >
+              Approved
+            </button>
+            <button className="createFormBtn"
+              onClick={handleReject}
+            >
+              Reject
+            </button>
           </div>
-          
-          <div className={`Table-container `} >
-            <table className={`Table responsive-table `} >
-              <thead className="Table-header">
-                <tr className="Header-rows">
-                  <th className='Header-data'><Checkbox checked={allSelected} onChange={toggleSelectAll} /></th>
-                  {columnsConfig.map(col => (
-                    <th key = {col.key} className='Header-data'>{col.header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className={`Table-body `} >
-                {currentRows.length > 0 ? (
-                  currentRows.map((item, index) => (
-                    <tr
-                      key={index}
-                      className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
-                    >
-                      <td className="Body-data"><Checkbox checked={selectedItems.includes(item.Id)} onChange={() => toggleSelect(item.Id)} /></td>
-                      <td className="Body-data">{item.Position || "-"}</td>
-                      <td className="Body-data">{item.ModuleName || "-"}</td>
-                      <td className="Body-data">{item.Level || "-"}</td>
-                      <td className="Body-data">{item.BatchName || "-"}</td>
-                      <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
-                      <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
-                      <td className="Body-data">{item.EmployeeID || "-"}</td>
-                      <td className="Body-data">{item.EmployeeName || "-"}</td>
-                      <td className="Body-data">{item.Department || "-"}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={13} style={{ textAlign: "center" }}>
-                      No data available
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="pagination-container ">
-                <div className="pagination-info">
-                  Showing {startIndex + 1}–{endIndex} of {filteredData.length}
-                </div>
-                <div className="pagination-buttons">
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(1)}
-                  >
-                    ⏮
-                  </button>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
-                  >
-                    ◀
-                  </button>
-                  <span className="pg-number mx-2">Page {currentPage} of {totalPages}</span>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                  >
-                    ▶
-                  </button>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(totalPages)}
-                  >
-                    ⏭
-                  </button>
-                </div>
+        )}
+        {/* Reject Modal */}
+        <Dialog
+          hidden={!showRejectModal}
+          onDismiss={() => { setShowRejectModal(false); setRemark(''); }}
+          dialogContentProps={{
+            type: DialogType.normal,
+            title: 'Enter Remark for Rejection',
+          }}
+          modalProps={{
+            isBlocking: false,
+          }}
+        >
+          <TextField
+            label="Remark"
+            multiline
+            rows={3}
+            value={remark}
+            onChange={(_, newValue) => setRemark(newValue || '')}
+            required
+          />
+          <DialogFooter>
+            <PrimaryButton onClick={handleRejectSave} text="Save" />
+            <DefaultButton onClick={() => { setShowRejectModal(false); setRemark(''); }} text="Cancel" />
+          </DialogFooter>
+        </Dialog>
+        {/* Search and Page Size Controls */}
+        {activeTab === "Pending" && (
+          <div>
+            <div className={`table-controls d-flex mb-3 flex-wrap `}>
+              <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
+                <Search24Regular className='searchIcon' />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ maxWidth: '300px', paddingLeft: '38px' }}
+                />
               </div>
-            )}
-          </div>
-        </div>
-      )}
-      {activeTab === "Approved" && (
-        <div>
-          <div className={`table-controls d-flex mb-3 flex-wrap `} style={{marginLeft: '2%'}} >
-            <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
-              <Search24Regular className='searchIcon' />
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ maxWidth: '300px', paddingLeft: '38px' }}
-              />
-            </div>
-            <div className="page-size-container mb-2" style={{height: 'auto'}}>
-              <label htmlFor="rowsPerPage" className="me-2 font-medium">Rows per page:</label>
-              <select
-                id="rowsPerPage"
-                className="form-select"
-                value={rowsPerPage}
-                onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page when page size changes
-                }}
-                style={{ width: 'auto', display: 'inline-block' }}
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-          </div>
-          
-          <div className={`Table-container `} >
-            <table className={`Table responsive-table `} >
-              <thead className="Table-header">
-                <tr className="Header-rows">
-                  {/* {columnsConfig.map(col => (
-                    <th key = {col.key} className='Header-data'>{col.header}</th>
-                  ))} */}
-                  <th className="Header-data">Position</th>
-                  <th className="Header-data">Module</th>
-                  <th className="Header-data">Level</th>
-                  <th className="Header-data">Batch Name</th>
-                  <th className="Header-data">Batch Start Date</th>
-                  <th className="Header-data">Batch End Date</th>
-                  <th className="Header-data">Employee ID</th>
-                  <th className="Header-data">Employee Name</th>
-                  <th className="Header-data">Department</th>
-                </tr>
-              </thead>
-              <tbody className={`Table-body `} >
-                {currentRows.length > 0 ? (
-                  currentRows.map((item, index) => (
-                    <tr
-                      key={index}
-                      className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
-                    >
-                      <td className="Body-data">{item.Position || "-"}</td>
-                      <td className="Body-data">{item.ModuleName || "-"}</td>
-                      <td className="Body-data">{item.Level || "-"}</td>
-                      <td className="Body-data">{item.BatchName || "-"}</td>
-                      <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
-                      <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
-                      <td className="Body-data">{item.EmployeeID || "-"}</td>
-                      <td className="Body-data">{item.EmployeeName || "-"}</td>
-                      <td className="Body-data">{item.Department || "-"}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={12} style={{ textAlign: "center" }}>
-                      No data available
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="pagination-container ">
-                <div className="pagination-info">
-                  Showing {startIndex + 1}–{endIndex} of {filteredData.length}
-                </div>
-                <div className="pagination-buttons">
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(1)}
-                  >
-                    ⏮
-                  </button>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
-                  >
-                    ◀
-                  </button>
-                  <span className="pg-number mx-2">Page {currentPage} of {totalPages}</span>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                  >
-                    ▶
-                  </button>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(totalPages)}
-                  >
-                    ⏭
-                  </button>
-                </div>
+              <div className="page-size-container mb-2" style={{height: 'auto'}}>
+                <label htmlFor="rowsPerPage" className="me-2 font-medium">Rows per page:</label>
+                <select
+                  id="rowsPerPage"
+                  className="form-select"
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    setCurrentPage(1); // Reset to first page when page size changes
+                  }}
+                  style={{ width: 'auto', display: 'inline-block' }}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
               </div>
-            )}
-          </div>
-        </div> 
-      )}
-      {activeTab === "Rejected" && (
-        <div>
-          <div className={`table-controls d-flex mb-3 flex-wrap `} style={{marginLeft: '2%'}} >
-            <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
-              <Search24Regular className='searchIcon' />
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ maxWidth: '300px', paddingLeft: '38px' }}
-              />
             </div>
-            <div className="page-size-container mb-2" style={{height: 'auto'}}>
-              <label htmlFor="rowsPerPage" className="me-2 font-medium">Rows per page:</label>
-              <select
-                id="rowsPerPage"
-                className="form-select"
-                value={rowsPerPage}
-                onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page when page size changes
-                }}
-                style={{ width: 'auto', display: 'inline-block' }}
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-          </div>
-          
-          <div className={`Table-container `} >
-            <table className={`Table responsive-table `} >
-              <thead className="Table-header">
-                <tr className="Header-rows">
-                  {/* {columnsConfig.map(col => (
-                    <th key = {col.key} className='Header-data'>{col.header}</th>
-                  ))} */}
-                  <th className="Header-data">Position</th>
-                  <th className="Header-data">Module</th>
-                  <th className="Header-data">Level</th>
-                  <th className="Header-data">Batch Name</th>
-                  <th className="Header-data">Batch Start Date</th>
-                  <th className="Header-data">Batch End Date</th>
-                  <th className="Header-data">Employee ID</th>
-                  <th className="Header-data">Employee Name</th>
-                  <th className="Header-data">Department</th>
-                </tr>
-              </thead>
-              <tbody className={`Table-body `} >
-                {currentRows.length > 0 ? (
-                  currentRows.map((item, index) => (
-                    <tr
-                      key={index}
-                      className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
-                    >
-                      <td className="Body-data">{item.Position || "-"}</td>
-                      <td className="Body-data">{item.ModuleName || "-"}</td>
-                      <td className="Body-data">{item.Level || "-"}</td>
-                      <td className="Body-data">{item.BatchName || "-"}</td>
-                      <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
-                      <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
-                      <td className="Body-data">{item.EmployeeID || "-"}</td>
-                      <td className="Body-data">{item.EmployeeName || "-"}</td>
-                      <td className="Body-data">{item.Department || "-"}</td>
+        
+            <div className={`Table-container `} >
+              <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+                <table className={`Table responsive-table `} >
+                  <thead className="Table-header">
+                    <tr className="Header-rows">
+                      <th className='Header-data'><Checkbox checked={allSelected} onChange={toggleSelectAll} /></th>
+                      {columnsConfig.map(col => (
+                        <th key = {col.key} className='Header-data'>{col.header}</th>
+                      ))}
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={13} style={{ textAlign: "center" }}>
-                      No data available
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="pagination-container ">
-                <div className="pagination-info">
-                  Showing {startIndex + 1}–{endIndex} of {filteredData.length}
-                </div>
-                <div className="pagination-buttons">
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(1)}
-                  >
-                    ⏮
-                  </button>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
-                  >
-                    ◀
-                  </button>
-                  <span className="pg-number mx-2">Page {currentPage} of {totalPages}</span>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                  >
-                    ▶
-                  </button>
-                  <button
-                    className="pg-btn"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(totalPages)}
-                  >
-                    ⏭
-                  </button>
-                </div>
+                  </thead>
+                  <tbody className={`Table-body `} >
+                    {currentRows.length > 0 ? (
+                      currentRows.map((item, index) => (
+                        <tr
+                          key={index}
+                          className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
+                        >
+                          <td className="Body-data"><Checkbox checked={selectedItems.includes(item.Id)} onChange={() => toggleSelect(item.Id)} /></td>
+                          <td className="Body-data">{item.Position || "-"}</td>
+                          <td className="Body-data">{item.ModuleName || "-"}</td>
+                          <td className="Body-data">{item.Level || "-"}</td>
+                          <td className="Body-data">{item.BatchName || "-"}</td>
+                          <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
+                          <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
+                          <td className="Body-data">{item.EmployeeID || "-"}</td>
+                          <td className="Body-data">{item.EmployeeName || "-"}</td>
+                          <td className="Body-data">{item.Department || "-"}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={13} style={{ textAlign: "center" }}>
+                          No data available
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination-container ">
+                  <div className="pagination-info">
+                    Showing {startIndex + 1}–{endIndex} of {filteredData.length}
+                  </div>
+                  <div className="pagination-buttons">
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(1)}
+                    >
+                      ⏮
+                    </button>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => prev - 1)}
+                    >
+                      ◀
+                    </button>
+                    <span className="pg-number mx-2">Page {currentPage} of {totalPages}</span>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(prev => prev + 1)}
+                    >
+                      ▶
+                    </button>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                    >
+                      ⏭
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {activeTab === "Approved" && (
+          <div>
+            <div className={`table-controls d-flex mb-3 flex-wrap `}>
+              <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
+                <Search24Regular className='searchIcon' />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ maxWidth: '300px', paddingLeft: '38px' }}
+                />
+              </div>
+              <div className="page-size-container mb-2" style={{height: 'auto'}}>
+                <label htmlFor="rowsPerPage" className="me-2 font-medium">Rows per page:</label>
+                <select
+                  id="rowsPerPage"
+                  className="form-select"
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    setCurrentPage(1); // Reset to first page when page size changes
+                  }}
+                  style={{ width: 'auto', display: 'inline-block' }}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+            </div>
+        
+            <div className={`Table-container `} >
+              <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+                <table className={`Table responsive-table `} >
+                  <thead className="Table-header">
+                    <tr className="Header-rows">
+                      {/* {columnsConfig.map(col => (
+                        <th key = {col.key} className='Header-data'>{col.header}</th>
+                      ))} */}
+                      <th className="Header-data">Position</th>
+                      <th className="Header-data">Module</th>
+                      <th className="Header-data">Level</th>
+                      <th className="Header-data">Batch Name</th>
+                      <th className="Header-data">Batch Start Date</th>
+                      <th className="Header-data">Batch End Date</th>
+                      <th className="Header-data">Employee ID</th>
+                      <th className="Header-data">Employee Name</th>
+                      <th className="Header-data">Department</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`Table-body `} >
+                    {currentRows.length > 0 ? (
+                      currentRows.map((item, index) => (
+                        <tr
+                          key={index}
+                          className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
+                        >
+                          <td className="Body-data">{item.Position || "-"}</td>
+                          <td className="Body-data">{item.ModuleName || "-"}</td>
+                          <td className="Body-data">{item.Level || "-"}</td>
+                          <td className="Body-data">{item.BatchName || "-"}</td>
+                          <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
+                          <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
+                          <td className="Body-data">{item.EmployeeID || "-"}</td>
+                          <td className="Body-data">{item.EmployeeName || "-"}</td>
+                          <td className="Body-data">{item.Department || "-"}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={12} style={{ textAlign: "center" }}>
+                          No data available
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination-container ">
+                  <div className="pagination-info">
+                    Showing {startIndex + 1}–{endIndex} of {filteredData.length}
+                  </div>
+                  <div className="pagination-buttons">
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(1)}
+                    >
+                      ⏮
+                    </button>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => prev - 1)}
+                    >
+                      ◀
+                    </button>
+                    <span className="pg-number mx-2">Page {currentPage} of {totalPages}</span>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(prev => prev + 1)}
+                    >
+                      ▶
+                    </button>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                    >
+                      ⏭
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {activeTab === "Rejected" && (
+          <div>
+            <div className={`table-controls d-flex mb-3 flex-wrap `}>
+              <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
+                <Search24Regular className='searchIcon' />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ maxWidth: '300px', paddingLeft: '38px' }}
+                />
+              </div>
+              <div className="page-size-container mb-2" style={{height: 'auto'}}>
+                <label htmlFor="rowsPerPage" className="me-2 font-medium">Rows per page:</label>
+                <select
+                  id="rowsPerPage"
+                  className="form-select"
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    setCurrentPage(1); // Reset to first page when page size changes
+                  }}
+                  style={{ width: 'auto', display: 'inline-block' }}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+            </div>
+        
+            <div className={`Table-container `} >
+              <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+                <table className={`Table responsive-table `} >
+                  <thead className="Table-header">
+                    <tr className="Header-rows">
+                      {/* {columnsConfig.map(col => (
+                        <th key = {col.key} className='Header-data'>{col.header}</th>
+                      ))} */}
+                      <th className="Header-data">Position</th>
+                      <th className="Header-data">Module</th>
+                      <th className="Header-data">Level</th>
+                      <th className="Header-data">Batch Name</th>
+                      <th className="Header-data">Batch Start Date</th>
+                      <th className="Header-data">Batch End Date</th>
+                      <th className="Header-data">Employee ID</th>
+                      <th className="Header-data">Employee Name</th>
+                      <th className="Header-data">Department</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`Table-body `} >
+                    {currentRows.length > 0 ? (
+                      currentRows.map((item, index) => (
+                        <tr
+                          key={index}
+                          className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
+                        >
+                          <td className="Body-data">{item.Position || "-"}</td>
+                          <td className="Body-data">{item.ModuleName || "-"}</td>
+                          <td className="Body-data">{item.Level || "-"}</td>
+                          <td className="Body-data">{item.BatchName || "-"}</td>
+                          <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
+                          <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
+                          <td className="Body-data">{item.EmployeeID || "-"}</td>
+                          <td className="Body-data">{item.EmployeeName || "-"}</td>
+                          <td className="Body-data">{item.Department || "-"}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={13} style={{ textAlign: "center" }}>
+                          No data available
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination-container ">
+                  <div className="pagination-info">
+                    Showing {startIndex + 1}–{endIndex} of {filteredData.length}
+                  </div>
+                  <div className="pagination-buttons">
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(1)}
+                    >
+                      ⏮
+                    </button>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => prev - 1)}
+                    >
+                      ◀
+                    </button>
+                    <span className="pg-number mx-2">Page {currentPage} of {totalPages}</span>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(prev => prev + 1)}
+                    >
+                      ▶
+                    </button>
+                    <button
+                      className="pg-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                    >
+                      ⏭
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 

@@ -1,73 +1,62 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
+import styles from './AbgProject.module.scss';
 import type { IAbgBatchCreationProps } from '../IAbgBatchCreationProps';
-import { useHistory } from 'react-router-dom';
-import { Icon } from '@fluentui/react/lib/Icon';
-import DashboardOps from '../../services/BAL/BatchCreationDashboard';
-import logo from '../../assets/ABGlogo.jpg';
-import { Search24Regular } from "@fluentui/react-icons";
-import { SPComponentLoader } from '@microsoft/sp-loader';
+import DashboardOps from '../../services/BAL/TNIDashboard';
+import { ITNIDashboard } from '../../services/interface/ITNIDashboard';
+import { sp } from "@pnp/sp";
+import "@pnp/sp/webs";
+import "@pnp/sp/lists";
+import "@pnp/sp/items";
+import USESPCRUD, { ISPCRUD } from '../../services/BAL/SPCRUD/spcrud';
 import '../styles.scss';
-import '../TNICreation.scss';
-import { IViewAllocatedEmployee } from '../../services/interface/IViewAllocatedEmployee';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faTimes,
-  faPlus,
-  faEdit,
-  faEye
-} from '@fortawesome/free-solid-svg-icons';
-import ViewAllocatedEmployeeOps from '../../services/BAL/ViewAllocatedEmployee';
+import { Link } from 'react-router-dom';
+import anime from "animejs/lib/anime.es.js"; // Ensure correct path
+import html2canvas from 'html2canvas';
+import { Search24Regular } from "@fluentui/react-icons";
+import logo from '../../assets/ABGlogo.jpg';
+import { SPComponentLoader } from '@microsoft/sp-loader';
+import { useHistory } from 'react-router-dom';
+import { CSVLink } from "react-csv";
+import { Icon } from '@fluentui/react/lib/Icon';
 
 
+// Load Bootstrap + FontAwesome
+SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
+SPComponentLoader.loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 
 
-
-export const ViewAllocatedEmployee: React.FunctionComponent<IAbgBatchCreationProps> = (props: IAbgBatchCreationProps) => {
+export const TNIDashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (props: IAbgBatchCreationProps) => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("TNI 24-25");
   const [visible, setVisible] = useState(false);
-  const [itemID, setItemID] = useState("");
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [filteredData, setFilteredData] = useState<IViewAllocatedEmployee[]>([]);
+  const [filteredData, setFilteredData] = useState<ITNIDashboard[]>([]);
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
   const currentRows = filteredData.slice(startIndex, endIndex);
-  const [DashboardData, setDashboardData] = React.useState<IViewAllocatedEmployee[]>([]);
+  const [DashboardData, setDashboardData] = React.useState<ITNIDashboard[]>([]);
   
-  useEffect(() => {
-    // Fetch URL parameters
-    const getUrlVars = (): { ID: string} => {
-      const vars: { [key: string]: string } = {};
-      const query = window.location.hash.substring(0).split('?')[1].split('&');
-      query.forEach(param => {
-        const [key, value] = param.split('=');
-        vars[key] = value;
-      });
-      setItemID(vars.ID);
-      return { ID: vars.ID || ''};
-    };
-  }, []);
 
   useEffect(() => {
-    // Fetch dashboard data when component mounts
-    const fetchDashboardData = async () => {
-      setLoading(true);
-      try {
-        const Data = await ViewAllocatedEmployeeOps().getViewAllocatedEmployeeData(itemID, props);
-        setDashboardData(Data);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardData();
+      // Fetch dashboard data when component mounts
+      const fetchDashboardData = async () => {
+        setLoading(true);
+        try {
+            const Data = await DashboardOps().getDashboardData(props);
+            setDashboardData(Data);
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchDashboardData();
   }, []);
-
   // useeffect for Filtering DashboardData based on searchQuery
   useEffect(() => {
     if (!DashboardData) return;
@@ -75,13 +64,12 @@ export const ViewAllocatedEmployee: React.FunctionComponent<IAbgBatchCreationPro
     const filtered = DashboardData.filter((item) =>
       [
         item.Position,
+        item.TNIDepartment,
+        item.Department,
+        item.Modules,
         item.Level,
-        item.BatchAllocationType,
-        item.BatchName,
-        item.Duration,
-        item.ModuleName,
+        item.EmployeeName,
         item.EmployeeID,
-        item.EmployeeName
       ]
         .filter((field) => field) // Remove null/undefined
         .some((field) =>
@@ -92,17 +80,28 @@ export const ViewAllocatedEmployee: React.FunctionComponent<IAbgBatchCreationPro
     // Reset to first page when search changes
     setCurrentPage(1);
   }, [searchQuery, DashboardData]);
-
+  
   // Column definitions: header label + field key + optional render
   const columnsConfig = [
+    { header: "Position", key: "Position" },
+    { header: "TNI Department", key: "TNIDepartment" },
+    { header: "Department", key: "Department" },
+    { header: "Modules", key: "Modules" },
+    { header: "Level", key: "Level" },
     { header: "Employee ID", key: "EmployeeID" },
     { header: "Employee Name", key: "EmployeeName" },
-    { header: "Position", key: "Position" },
-    { header: "Level", key: "Level" },
-    { header: "Module", key: "ModuleName" },
-    { header: "Batch Name", key: "BatchName" },
-    { header: "Batch Allocation Type", key: "BatchAllocationType" },
-    { header: "Duration", key: "Duration" },
+  ];
+
+  // CSV Headers configuration
+  const csvHeaders = columnsConfig.map(col => ({
+    label: col.header,
+    key: col.key,
+  }));
+
+
+  // Tabs configuration on header tab
+  const tabs = [
+    { id: "TNI24-25", label: "TNI 24-25" }
 
   ];
 
@@ -122,15 +121,45 @@ export const ViewAllocatedEmployee: React.FunctionComponent<IAbgBatchCreationPro
 
       <div className="stickyHeader">
         <div className="tniHeader">
-          <h1 className='popup-header'>View Allocated Employee</h1>
-          {/* <h1 className={`main-heading `} ></h1> */}
+          <h1 className="popup-header">TNI Dashboard</h1>
+          <div className="tabsRow">
+            <div className="tabs">
+              {tabs.map(tab => (
+                <div
+                  key={tab.id}
+                  className={`tab ${activeTab === tab.id ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Search and Page Size Controls */}
       {/* PAGE CONTENT */}
       <div className="pageContent">
-        <div className={`table-controls d-flex mb-3 flex-wrap `}>
+        <div className={`createFormBtnWrapper `} >
+          <button className="createFormBtn"
+          onClick={() => history.push('/TNICreation')}
+          >
+            Create TNI
+          </button>
+          <button className="createFormBtn"
+          onClick={() => history.push('/AddModules')}
+          >
+            Add Module
+          </button>
+        </div>
+        <div className="excel" style={{border: '1px solid #c4291c',padding: "5px",width:'fit-content',backgroundColor:'#a2231d',borderRadius:'5px',height:'2.4rem', textAlign:'center',float: 'inline-end',marginRight: '1.5rem'}}>
+          {filteredData.length > 0 && (
+            <CSVLink data={filteredData} headers={csvHeaders} filename="EmployeeTNIDashboard.csv" style={{textDecoration: 'none',color:'white'}}>
+              <Icon iconName="ExcelDocument" style={{color:'white'}}/> <span className='pl-2'style={{color:'#fff', paddingLeft:'7px'}}>Export to Excel</span>
+            </CSVLink>
+          )}
+        </div>
+        {/* Search and Page Size Controls */}
+        <div className={`table-controls d-flex mb-3 flex-wrap `} style={{marginLeft: '2%'}} >
           <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
             <Search24Regular className='searchIcon' />
             <input
@@ -179,19 +208,18 @@ export const ViewAllocatedEmployee: React.FunctionComponent<IAbgBatchCreationPro
                       key={index}
                       className={`Body-rows  ${index % 2 === 0 ? "even" : "odd"}`}
                     >
+                      <td className="Body-data">{item.Position || "-"}</td>
+                      <td className="Body-data">{item.TNIDepartment || "-"}</td>
+                      <td className="Body-data">{item.Department || "-"}</td>
+                      <td className="Body-data">{item.Modules || "-"}</td>
+                      <td className="Body-data">{item.Level || "-"}</td>
                       <td className="Body-data">{item.EmployeeID || "-"}</td>
                       <td className="Body-data">{item.EmployeeName || "-"}</td>
-                      <td className="Body-data">{item.Position || "-"}</td>
-                      <td className="Body-data">{item.Level || "-"}</td>
-                      <td className="Body-data">{item.ModuleName || "-"}</td>
-                      <td className="Body-data">{item.BatchName || "-"}</td>
-                      <td className="Body-data">{item.BatchAllocationType || "-"}</td>
-                      <td className="Body-data">{item.Duration || "-"}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={13} style={{ textAlign: "center" }}>
+                    <td colSpan={7} style={{ textAlign: "center" }}>
                       No data available
                     </td>
                   </tr>

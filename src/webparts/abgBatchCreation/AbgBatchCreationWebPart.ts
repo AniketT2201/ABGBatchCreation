@@ -11,6 +11,7 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 import * as strings from 'AbgBatchCreationWebPartStrings';
 import AbgBatchCreation from './components/AbgBatchCreation';
 import { IAbgBatchCreationProps } from './components/IAbgBatchCreationProps';
+import Sidebar2 from './components/Pages/Sidebar';
 
 export interface IAbgBatchCreationWebPartProps {
   description: string;
@@ -25,6 +26,7 @@ export default class AbgBatchCreationWebPart extends BaseClientSideWebPart<IAbgB
     const element: React.ReactElement<IAbgBatchCreationProps> = React.createElement(
       AbgBatchCreation,
       {
+        httpClient: this.context.httpClient,
         currentSPContext: this.context,
         webAbsoluteUrl: this.context.pageContext.web.absoluteUrl,
         description: this.properties.description,

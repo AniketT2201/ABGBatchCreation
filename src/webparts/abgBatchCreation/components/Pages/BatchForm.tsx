@@ -227,7 +227,7 @@ export const BatchForm: React.FunctionComponent<IAbgBatchCreationProps> = (props
   };
   
   return (
-    <div className="abg-form-container">
+    <div className="pageContainer">
       <div className="abg-form-header">Batch Entry Form</div>
       <div className="abg-form-body">
         <div className="abg-form-row">
