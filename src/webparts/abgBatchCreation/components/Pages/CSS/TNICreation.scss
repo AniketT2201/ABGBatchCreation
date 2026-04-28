@@ -415,6 +415,35 @@
   white-space: nowrap;
 }
 
+.form-group input[type="number"] {
+  width: 100%;
+  height: 50px;
+  padding: 0 12px;
+  border: 2px solid #D8D8D8;
+  border-radius: 6px;
+  background: white;
+  font-size: 15px;
+  color: #212121;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  appearance: textfield;
+}
+
+.form-group input[type="number"]::-webkit-outer-spin-button,
+.form-group input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.form-group input[type="number"]:focus {
+  outline: none;
+  border-color: #A2231D;
+  box-shadow: 0 0 0 3px rgba(162, 35, 29, 0.1);
+}
+
+.form-group input[type="number"]:hover {
+  border-color: #C5983D;
+}
+
 .form-group select:focus {
   outline: none;
   border-color: #A2231D;

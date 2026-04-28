@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import type { IAbgBatchCreationProps } from '../IAbgBatchCreationProps';
 import { useHistory } from 'react-router-dom';
-import '../styles.scss';
-import '../TNICreation.scss';
+import './CSS/styles.scss';
+import './CSS/TNICreation.scss';
 //FinancialYear Master Imports
 import { IFinancialYearMaster } from '../../services/interface/IFinancialYearMaster';
 import FinancialYearMasterOps from '../../services/BAL/FinancialYearMaster';

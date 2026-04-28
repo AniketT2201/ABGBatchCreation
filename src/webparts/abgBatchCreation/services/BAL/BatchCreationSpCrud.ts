@@ -14,6 +14,8 @@ export interface IDashboardOps {
         onProgress?: (completed: number, total: number) => void ): Promise<any[]>;
     bulkUpdateTNIFlags( tniUpdates: Array<{ id: number; updates: any; }>, props: IAbgBatchCreationProps,
         onProgress?: (completed: number, total: number) => void ): Promise<any[]>;
+    bulkUpdateforTNIFlags( tniUpdates: Array<{ id: number; updates: any; }>, props: IAbgBatchCreationProps,
+        onProgress?: (completed: number, total: number) => void ): Promise<any[]>;
     insertFeedbackForms( items: any[], props: IAbgBatchCreationProps,
         onProgress?: (completed: number, total: number) => void ): Promise<any[]>;
     insertTrainerFeedbackForms( items: any[], props: IAbgBatchCreationProps,
@@ -199,6 +201,47 @@ export default function BatchCreationSpCrudOps(): IDashboardOps {
         }
     };
 
+    const bulkUpdateforTNIFlags = async (
+        tniUpdates: Array<{
+            id: number;
+            updates: any;
+        }>,
+        props: IAbgBatchCreationProps,
+        onProgress?: (completed: number, total: number) => void
+        ): Promise<any[]> => {
+        try {
+            const spCrudOpsInstance = await spCrudOps;
+            const results: any[] = [];
+            let completed = 0;
+            const total = tniUpdates.length;
+
+            for (const updateItem of tniUpdates) {
+            try {
+                const res = await spCrudOpsInstance.updateData(
+                "TNI2122",
+                updateItem.id,
+                updateItem.updates,
+                props
+                );
+                results.push(res);
+            } catch (err) {
+                console.error(`Failed to update TNI ID ${updateItem.id}:`, err);
+                // Continue with others
+            } finally {
+                completed++;
+                if (onProgress) {
+                onProgress(completed, total);
+                }
+            }
+            }
+
+            return results;
+        } catch (error) {
+            console.error('Error updating TNI flags:', error);
+            throw error;
+        }
+    };
+
     // Single Batch Status Update
     const updateBatchStatus = async (
         batchId: number,
@@ -310,6 +353,7 @@ export default function BatchCreationSpCrudOps(): IDashboardOps {
         bulkCheckDuplicates,
         insertBatchData,
         insertManagerAssociations,
+        bulkUpdateforTNIFlags,
         bulkUpdateTNIFlags,
         updateBatchStatus,
         insertFeedbackForms,

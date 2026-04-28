@@ -9,7 +9,7 @@ import VenueMasterOps from '../../services/BAL/VenueMaster';
 import TrainerModuleMappingOps from '../../services/BAL/TrainerModuleMapping';
 import DashboardOps from '../../services/BAL/BatchCreationDashboard';
 import Swal from 'sweetalert2';
-import "../BatchForm.scss";
+import "./CSS/BatchForm.scss";
 import FinancialYearMasterOps from '../../services/BAL/FinancialYearMaster';
 
 

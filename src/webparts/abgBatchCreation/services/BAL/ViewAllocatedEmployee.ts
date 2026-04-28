@@ -5,6 +5,7 @@ import { Web } from "@pnp/sp/presets/all";
 import { IViewAllocatedEmployee } from "../interface/IViewAllocatedEmployee";
 
 export interface IViewAllocatedEmployeeOps {
+    getBatchAllocatedEmployeeData(filter: any, props: IAbgBatchCreationProps): Promise<IViewAllocatedEmployee[]>;
     getViewAllocatedEmployeeData(ID: any, props: IAbgBatchCreationProps): Promise<IViewAllocatedEmployee[]>;
     getAllocatedEmployeeData(activeTab: any, props: IAbgBatchCreationProps): Promise<IViewAllocatedEmployee[]>;
 }
@@ -13,6 +14,70 @@ export interface IViewAllocatedEmployeeOps {
 
 export default function ViewAllocatedEmployeeOps(): IViewAllocatedEmployeeOps {
     const spCrudOps = SPCRUDOPS();
+
+    const getBatchAllocatedEmployeeData = async (filter: any, props: IAbgBatchCreationProps): Promise<IViewAllocatedEmployee[]> => {
+    
+        try {
+            const spCrudOpsInstance = await spCrudOps;
+            const results = await spCrudOpsInstance.getData(
+                "BatchAllocation2223",
+                "*,ID,BatchType,EmployeeFlag,Position,BatchName/Duration,TrainerName/TrainerName,Module/ModuleName,Level,EmployeeID/EmployeeID,EmployeeName/EmployeeName,SupervisorStatus,BatchName/BatchName,BatchName/BatchStatusforAllocation,BatchAllocationType,Department/DepartmentName,Department/Id",
+                "Module,TrainerName,EmployeeID,EmployeeName,BatchName,BatchName/BatchStatusforAllocation,Department",
+                filter,
+                { column: "Id", isAscending: false }, 
+                props
+            );
+    
+            console.log('Results from API of ViewAllocatedEmployee:', results);
+
+            // 🔑 Sort descending by Id
+            const sortedResults = results.sort(
+              (a: any, b: any) => b.Id - a.Id
+            );
+    
+            let brr: Array<IViewAllocatedEmployee> = new Array<IViewAllocatedEmployee>();
+            results.map((item: any) => {
+                brr.push({
+                    Id: item.Id,
+                    Position: item.Position,
+                    Level: item.Level,
+                    BatchAllocationType: item.BatchAllocationType,
+                    SupervisorStatus: item.SupervisorStatus,
+                    Year: item.Year,
+                    Month: item.Month,
+                    BatchStartDate: item.BatchStartDate,
+                    BatchEndDate: item.BatchEndDate,
+                    BatchType: item.BatchType,
+
+                    BatchNameId: item.BatchName?.Id,
+                    BatchName: item.BatchName?.BatchName,
+                    Duration: item.BatchName?.Duration,
+
+                    TrainerNameId: item.TrainerName?.Id,
+                    TrainerName: item.TrainerName?.TrainerName,
+
+                    ModuleId: item.Module?.Id,
+                    ModuleName: item.Module?.ModuleName,
+
+                    DepartmentId: item.Department?.Id,
+                    Department: item.Department?.DepartmentName,
+
+                    EmployeeIDId: item.EmployeeID?.Id,
+                    EmployeeID: item.EmployeeID?.EmployeeID,
+
+                    EmployeeNameId: item.EmployeeName?.Id,
+                    EmployeeName: item.EmployeeName?.EmployeeName           
+
+                });
+            });
+    
+            console.log('Processed Data for ViewAllocatedEmployee:', brr);
+            return brr;
+        } catch (error) {
+            console.error('Error in ViewAllocatedEmployee Data:', error.message);
+            throw error;
+        }
+    };
 
    const getAllocatedEmployeeData = async (activeTab: any, props: IAbgBatchCreationProps): Promise<IViewAllocatedEmployee[]> => {
     
@@ -166,6 +231,7 @@ export default function ViewAllocatedEmployeeOps(): IViewAllocatedEmployeeOps {
     };
 
     return {
+        getBatchAllocatedEmployeeData,
         getAllocatedEmployeeData,
         getViewAllocatedEmployeeData
     };

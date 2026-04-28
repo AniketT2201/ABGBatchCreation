@@ -34,7 +34,7 @@ import Swal from 'sweetalert2';
 SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
 SPComponentLoader.loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 
-export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreationProps> = (props: IAbgBatchCreationProps) => {
+export const AttendanceDashboard: React.FunctionComponent<IAbgBatchCreationProps> = (props: IAbgBatchCreationProps) => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("Pending");
@@ -59,7 +59,15 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-          const Data = await ViewAllocatedEmployeeOps().getAllocatedEmployeeData(activeTab, props);
+          let filter;
+          if (activeTab === 'Pending') {
+              filter = `EmployeeFlag eq 'Active' and (SupervisorStatus eq 'Approved' or TrainingCoOrdinatorStatus eq 'Approved') and BatchName/BatchStatusforAllocation eq'select'`;
+          } else if (activeTab === 'Present') {
+              filter = `EmployeeFlag eq 'Active' and Attendance eq 'Present' and BatchName/BatchStatusforAllocation eq 'select'`;
+          } else if (activeTab === 'Absent') {
+              filter = `EmployeeFlag eq 'Active' and Attendance eq 'Absent' and BatchName/BatchStatusforAllocation eq 'select'`;
+          }
+          const Data = await ViewAllocatedEmployeeOps().getBatchAllocatedEmployeeData(filter, props);
           setDashboardData(Data);
       } catch (error) {
           console.error('Error fetching dashboard data:', error);
@@ -85,7 +93,7 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
         item.Position,
         item.EmployeeID,
         item.EmployeeName,
-        item.Department
+        item.SupervisorStatus
       ]
         .filter((field) => field) // Remove null/undefined
         .some((field) =>
@@ -103,13 +111,12 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
   const columnsConfig = [
     { header: "Position", key: "Position" },
     { header: "Module", key: "ModuleName" },
-    { header: "Level", key: "Level" },
     { header: "Batch Name", key: "BatchName" },
     { header: "Batch Start Date", key: "BatchStartDate" },
     { header: "Batch End Date", key: "BatchEndDate" },
     { header: "Employee ID", key: "EmployeeID" },
     { header: "Employee Name", key: "EmployeeName" },
-    { header: "Department", key: "Department" },
+    { header: "Supervisor Status", key: "SupervisorStatus" },
   ];
 
   // CSV Headers configuration
@@ -122,8 +129,8 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
   // Tabs configuration on header tab
   const tabs = [
     { id: "Pending", label: "Pending" },
-    { id: "Approved", label: "Approved" },
-    { id: "Rejected", label: "Rejected" }
+    { id: "Present", label: "Present" },
+    { id: "Absent", label: "Absent" }
 
   ];
 
@@ -142,175 +149,162 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
     setAllSelected(!allSelected);
   };
 
-
-  const handleApprove = async () => {
+  const handleMarkPresent = async () => {
     if (!selectedItems.length) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'No Selection',
-        text: 'Please select at least one employee.',
-      });
+      Swal.fire('No Selection', 'Select employees', 'warning');
       return;
     }
-    if (!confirm(`Are you sure you want to approve ${selectedItems.length} employee(s)?`)) return;
+    const confirmAction = await Swal.fire({
+      title: `Mark ${selectedItems.length} employee(s) as Present?`,
+      icon: 'question',
+      showCancelButton: true,
+    });
+    if (!confirmAction.isConfirmed) return;
     setLoading(true);
     try {
-      const currentDate = new Date().toISOString();
+      // ✅ 1. Bulk update (ONLY ONCE)
       const updates = selectedItems.map(id => ({
         id,
         updates: {
-          SupervisorStatus: 'Approved',
-          ApproveRejectDate: currentDate,
+          Attendance: 'Present',
+          AllocationFlag: 'PresentAttendance',
         }
       }));
+
       const result = await EmployeeSupervisorOps().bulkUpdateBatchAllocation(updates, props);
-      const newData = await ViewAllocatedEmployeeOps().getAllocatedEmployeeData('Pending', props);
-      setDashboardData(newData);
-      setSelectedItems([]);
-      setAllSelected(false);
-      const successCount = result.length;
+      const tniUpdates: Array<{ id: number; updates: any }> = [];
+      // ✅ 2. Loop for remaining operations
+      for (const id of selectedItems) {
+        const item = DashboardData.find(d => d.Id === id);
+        if (!item) continue;
+
+        // ✅ Feedback
+        const feedbackData = {
+          EmployeeID: item.EmployeeID,
+          EmployeeName: item.EmployeeName,
+          Module: item.ModuleName,
+          BatchName: item.BatchName,
+          Attendance: 'Present',
+          Department: item.Department,
+          Level: item.Level,
+        };
+
+        await BatchCreationSpCrudOps().insertFeedbackForms([feedbackData], props);
+
+        // ✅ TNI flag
+        const tniItems = await EmployeeSupervisorOps().getTNIData(item.EmployeeID, item.ModuleName, props);
+        if (tniItems?.length > 0) {
+          tniUpdates.push({
+            id: tniItems[0].Id,
+            updates: {
+              TNIflag: 'BatchPresent',
+            }
+          });
+        }
+
+        // ✅ Trainer Feedback
+        const trainerData = {
+          EmployeeID: item.EmployeeID,
+          EmployeeName: item.EmployeeName,
+          Module: item.ModuleName,
+          BatchName: item.BatchName,
+          Level: item.Level
+        };
+
+        await BatchCreationSpCrudOps().insertTrainerFeedbackForms([trainerData], props);
+
+        // ✅ Batch Status
+        await BatchCreationSpCrudOps().updateBatchStatus(item.BatchNameId, 'TrainingConducted', props);
+      }
+
+      // ✅ Bulk TNI update (once)
+      if (tniUpdates.length > 0) {
+        await BatchCreationSpCrudOps().bulkUpdateTNIFlags(tniUpdates, props);
+      }
+
+      // ✅ Result handling
+      const successCount = result?.length || 0;
       const totalCount = selectedItems.length;
       const failedCount = totalCount - successCount;
 
       if (failedCount === 0) {
-        // ✅ ALL SUCCESS
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: `All ${successCount} employees approved successfully!`,
-        });
-
+        Swal.fire('Success', `All ${successCount} marked as Present!`, 'success');
       } else if (successCount > 0) {
-        // ⚠️ PARTIAL SUCCESS
-        Swal.fire({
-          icon: 'warning',
-          title: 'Partial Success',
-          text: `${successCount} approved, ${failedCount} failed.`,
-        });
-
+        Swal.fire('Partial Success', `${successCount} success, ${failedCount} failed`, 'warning');
       } else {
-        // ❌ TOTAL FAILURE
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed',
-          text: 'No employees were approved.',
-        });
+        Swal.fire('Failed', 'No updates done', 'error');
       }
-    } catch (error) {
-      console.error('Error approving:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'An error occurred while approving.',
-      });
+
+    } catch (err) {
+      console.error(err);
+      Swal.fire('Error', 'Something went wrong', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleReject = () => {
+  const handleMarkAbsent = async () => {
     if (!selectedItems.length) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'No Selection',
-        text: 'Please select at least one employee.',
-      });
+      Swal.fire('No Selection', 'Select employees', 'warning');
       return;
     }
-    setShowRejectModal(true);
-  };
-
-  const handleRejectSave = async () => {
-    if (!remark.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Remark',
-        text: 'Please enter a remark.',
-      });
-      return;
-    }
-    setShowRejectModal(false);
-    const { isConfirmed } = await Swal.fire({
+    const confirmAction = await Swal.fire({
+      title: `Mark ${selectedItems.length} employee(s) as Absent?`,
       icon: 'question',
-      title: 'Confirm Rejection',
-      text: `Are you sure you want to reject ${selectedItems.length} employee(s)?`,
       showCancelButton: true,
-      confirmButtonText: 'Yes',
-      cancelButtonText: 'No',
     });
-    if (!isConfirmed) return;
+
+    if (!confirmAction.isConfirmed) return;
     setLoading(true);
     try {
-      const currentDate = new Date().toISOString();
-      const batchUpdates = selectedItems.map(id => ({
+      // ✅ 1. Bulk update BatchAllocation (ONLY ONCE)
+      const updates = selectedItems.map(id => ({
         id,
         updates: {
-          SupervisorStatus: 'Rejected',
-          Remark: remark,
-          ApproveRejectDate: currentDate,
+          Attendance: 'Absent',
+          AllocationFlag: 'AbsentAttendance',
         }
       }));
-      const result = await EmployeeSupervisorOps().bulkUpdateBatchAllocation(batchUpdates, props);
 
+      const result = await EmployeeSupervisorOps().bulkUpdateBatchAllocation(updates, props);
       const tniUpdates: Array<{ id: number; updates: any }> = [];
+      // ✅ 2. Loop for TNI updates
       for (const id of selectedItems) {
         const item = DashboardData.find(d => d.Id === id);
-        if (item) {
-          const tniItems = await EmployeeSupervisorOps().getTNIData(item.EmployeeID, item.ModuleName, props);
-          if (tniItems?.length > 0) {
-            tniUpdates.push({
-              id: tniItems[0].Id,
-              updates: {
-                TNIflag: 'SupervisorRejected',
-              }
-            });
-          }
+        if (!item) continue;
+
+        const tniItems = await EmployeeSupervisorOps().getTNIData(item.EmployeeID, item.ModuleName, props);
+        if (tniItems?.length > 0) {
+          tniUpdates.push({
+            id: tniItems[0].Id,
+            updates: {
+              TNIflag: 'BatchAbsent',
+            }
+          });
         }
       }
+
+      // ✅ 3. Bulk TNI update
       if (tniUpdates.length > 0) {
         await BatchCreationSpCrudOps().bulkUpdateTNIFlags(tniUpdates, props);
       }
 
-      const newData = await ViewAllocatedEmployeeOps().getAllocatedEmployeeData('Pending', props);
-      setDashboardData(newData);
-      setSelectedItems([]);
-      setAllSelected(false);
-      setRemark('');
-      const successCount = result.length;
+      // ✅ 4. Result handling
+      const successCount = result?.length || 0;
       const totalCount = selectedItems.length;
       const failedCount = totalCount - successCount;
 
       if (failedCount === 0) {
-        // ✅ ALL SUCCESS
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: `All ${successCount} employees approved successfully!`,
-        });
-
+        Swal.fire('Success', `All ${successCount} marked as Absent!`, 'success');
       } else if (successCount > 0) {
-        // ⚠️ PARTIAL SUCCESS
-        Swal.fire({
-          icon: 'warning',
-          title: 'Partial Success',
-          text: `${successCount} approved, ${failedCount} failed.`,
-        });
-
+        Swal.fire('Partial Success', `${successCount} success, ${failedCount} failed`, 'warning');
       } else {
-        // ❌ TOTAL FAILURE
-        Swal.fire({
-          icon: 'error',
-          title: 'Failed',
-          text: 'No employees were approved.',
-        });
+        Swal.fire('Failed', 'No updates done', 'error');
       }
-    } catch (error) {
-      console.error('Error rejecting:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'An error occurred while rejecting.',
-      });
+
+    } catch (err) {
+      console.error(err);
+      Swal.fire('Error', 'Something went wrong', 'error');
     } finally {
       setLoading(false);
     }
@@ -327,7 +321,7 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
 
       <div className="stickyHeader">
         <div className="tniHeader">
-          <h1 className="popup-header">Supervisor Approval Dashboard</h1>
+          <h1 className="popup-header">Attendance Dashboard</h1>
         </div>
       </div>
       {/* PAGE CONTENT */}
@@ -348,19 +342,19 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
         {activeTab === "Pending" && (
           <div className={`createFormBtnWrapper `} >
             <button className="createFormBtn"
-              onClick={handleApprove}
+              onClick={handleMarkPresent}
             >
-              Approved
+              Present
             </button>
             <button className="createFormBtn"
-              onClick={handleReject}
+              onClick={handleMarkAbsent}
             >
-              Reject
+              Absent
             </button>
           </div>
         )}
         {/* Reject Modal */}
-        <Dialog
+        {/* <Dialog
           hidden={!showRejectModal}
           onDismiss={() => { setShowRejectModal(false); setRemark(''); }}
           dialogContentProps={{
@@ -383,7 +377,7 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
             <PrimaryButton onClick={handleRejectSave} text="Save" />
             <DefaultButton onClick={() => { setShowRejectModal(false); setRemark(''); }} text="Cancel" />
           </DialogFooter>
-        </Dialog>
+        </Dialog> */}
         {/* Search and Page Size Controls */}
         {activeTab === "Pending" && (
           <div>
@@ -440,13 +434,12 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
                           <td className="Body-data"><Checkbox checked={selectedItems.includes(item.Id)} onChange={() => toggleSelect(item.Id)} /></td>
                           <td className="Body-data">{item.Position || "-"}</td>
                           <td className="Body-data">{item.ModuleName || "-"}</td>
-                          <td className="Body-data">{item.Level || "-"}</td>
                           <td className="Body-data">{item.BatchName || "-"}</td>
                           <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
                           <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
                           <td className="Body-data">{item.EmployeeID || "-"}</td>
                           <td className="Body-data">{item.EmployeeName || "-"}</td>
-                          <td className="Body-data">{item.Department || "-"}</td>
+                          <td className="Body-data">{item.SupervisorStatus || "-"}</td>
                         </tr>
                       ))
                     ) : (
@@ -501,7 +494,7 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
             </div>
           </div>
         )}
-        {activeTab === "Approved" && (
+        {activeTab === "Present" && (
           <div>
             <div className={`table-controls d-flex mb-3 flex-wrap `}>
               <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
@@ -545,13 +538,12 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
                       ))} */}
                       <th className="Header-data">Position</th>
                       <th className="Header-data">Module</th>
-                      <th className="Header-data">Level</th>
                       <th className="Header-data">Batch Name</th>
                       <th className="Header-data">Batch Start Date</th>
                       <th className="Header-data">Batch End Date</th>
                       <th className="Header-data">Employee ID</th>
                       <th className="Header-data">Employee Name</th>
-                      <th className="Header-data">Department</th>
+                      <th className="Header-data">Supervisor Status</th>
                     </tr>
                   </thead>
                   <tbody className={`Table-body `} >
@@ -563,13 +555,12 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
                         >
                           <td className="Body-data">{item.Position || "-"}</td>
                           <td className="Body-data">{item.ModuleName || "-"}</td>
-                          <td className="Body-data">{item.Level || "-"}</td>
                           <td className="Body-data">{item.BatchName || "-"}</td>
                           <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
                           <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
                           <td className="Body-data">{item.EmployeeID || "-"}</td>
                           <td className="Body-data">{item.EmployeeName || "-"}</td>
-                          <td className="Body-data">{item.Department || "-"}</td>
+                          <td className="Body-data">{item.SupervisorStatus || "-"}</td>
                         </tr>
                       ))
                     ) : (
@@ -624,7 +615,7 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
             </div>
           </div>
         )}
-        {activeTab === "Rejected" && (
+        {activeTab === "Absent" && (
           <div>
             <div className={`table-controls d-flex mb-3 flex-wrap `}>
               <div className="search-container me-3 mb-2" style={{height: 'auto', position: 'relative'}}>
@@ -668,13 +659,12 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
                       ))} */}
                       <th className="Header-data">Position</th>
                       <th className="Header-data">Module</th>
-                      <th className="Header-data">Level</th>
                       <th className="Header-data">Batch Name</th>
                       <th className="Header-data">Batch Start Date</th>
                       <th className="Header-data">Batch End Date</th>
                       <th className="Header-data">Employee ID</th>
                       <th className="Header-data">Employee Name</th>
-                      <th className="Header-data">Department</th>
+                      <th className="Header-data">Supervisor Status</th>
                     </tr>
                   </thead>
                   <tbody className={`Table-body `} >
@@ -686,13 +676,12 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
                         >
                           <td className="Body-data">{item.Position || "-"}</td>
                           <td className="Body-data">{item.ModuleName || "-"}</td>
-                          <td className="Body-data">{item.Level || "-"}</td>
                           <td className="Body-data">{item.BatchName || "-"}</td>
                           <td className="Body-data">{formatDate(item.BatchStartDate) || "-"}</td>
                           <td className="Body-data">{formatDate(item.BatchEndDate) || "-"}</td>
                           <td className="Body-data">{item.EmployeeID || "-"}</td>
                           <td className="Body-data">{item.EmployeeName || "-"}</td>
-                          <td className="Body-data">{item.Department || "-"}</td>
+                          <td className="Body-data">{item.SupervisorStatus || "-"}</td>
                         </tr>
                       ))
                     ) : (

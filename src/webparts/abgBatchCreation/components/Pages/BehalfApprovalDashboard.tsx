@@ -34,7 +34,7 @@ import Swal from 'sweetalert2';
 SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css');
 SPComponentLoader.loadCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 
-export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreationProps> = (props: IAbgBatchCreationProps) => {
+export const BehalfApprovalDashboard: React.FunctionComponent<IAbgBatchCreationProps> = (props: IAbgBatchCreationProps) => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("Pending");
@@ -52,6 +52,7 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
   const [allSelected, setAllSelected] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [remark, setRemark] = useState('');
+  const currentUserId = props.currentSPContext.pageContext.legacyPageContext.userId;
   
 
   useEffect(() => {
@@ -59,7 +60,15 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-          const Data = await ViewAllocatedEmployeeOps().getAllocatedEmployeeData(activeTab, props);
+          let filter;
+          if (activeTab === 'Pending') {
+            filter = `EmployeeFlag eq 'Active' and SupervisorStatus eq 'Pending' and BatchName/BatchStatusforAllocation eq'select'`;
+          } else if (activeTab === 'Approved') {
+            filter = `EmployeeFlag eq 'Active' and TrainingCoOrdinatorStatus eq 'Approved' and BatchName/BatchStatusforAllocation eq 'select'`;
+          } else if (activeTab === 'Rejected') {
+            filter = `EmployeeFlag eq 'Active' and TrainingCoOrdinatorStatus eq 'Rejected' and BatchName/BatchStatusforAllocation eq 'select'`;
+          }
+          const Data = await ViewAllocatedEmployeeOps().getBatchAllocatedEmployeeData(filter, props);
           setDashboardData(Data);
       } catch (error) {
           console.error('Error fetching dashboard data:', error);
@@ -159,8 +168,10 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
       const updates = selectedItems.map(id => ({
         id,
         updates: {
-          SupervisorStatus: 'Approved',
+          SupervisorStatus: 'NoResponse',
           ApproveRejectDate: currentDate,
+          TrainingCoOrdinatorStatus: 'Approved',
+          OnBehalfId: currentUserId,
         }
       }));
       const result = await EmployeeSupervisorOps().bulkUpdateBatchAllocation(updates, props);
@@ -245,8 +256,10 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
       const batchUpdates = selectedItems.map(id => ({
         id,
         updates: {
-          SupervisorStatus: 'Rejected',
-          Remark: remark,
+          SupervisorStatus: 'NoResponse',
+          TrainingCoOrdinatorStatus: 'Rejected',
+          OnBehalfId: currentUserId,
+          TrainingCoOrdinatorRemark: remark,
           ApproveRejectDate: currentDate,
         }
       }));
@@ -268,7 +281,7 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
         }
       }
       if (tniUpdates.length > 0) {
-        await BatchCreationSpCrudOps().bulkUpdateTNIFlags(tniUpdates, props);
+        await BatchCreationSpCrudOps().bulkUpdateforTNIFlags(tniUpdates, props);
       }
 
       const newData = await ViewAllocatedEmployeeOps().getAllocatedEmployeeData('Pending', props);
@@ -327,7 +340,7 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
 
       <div className="stickyHeader">
         <div className="tniHeader">
-          <h1 className="popup-header">Supervisor Approval Dashboard</h1>
+          <h1 className="popup-header">On Behalf Approval Dashboard</h1>
         </div>
       </div>
       {/* PAGE CONTENT */}
@@ -359,6 +372,13 @@ export const EmployeeSupervisorDashboard: React.FunctionComponent<IAbgBatchCreat
             </button>
           </div>
         )}
+        <div className="excel" style={{border: '1px solid #c4291c',padding: "5px",width:'fit-content',backgroundColor:'#a2231d',borderRadius:'5px',height:'2.4rem', textAlign:'center',float: 'inline-end',marginRight: '1.5rem'}}>
+          {filteredData.length > 0 && (
+            <CSVLink data={filteredData} headers={csvHeaders} filename="BehalfApprovalDashboard.csv" style={{textDecoration: 'none',color:'white'}}>
+              <Icon iconName="ExcelDocument" style={{color:'white'}}/> <span className='pl-2'style={{color:'#fff', paddingLeft:'7px'}}>Export to Excel</span>
+            </CSVLink>
+          )}
+        </div>
         {/* Reject Modal */}
         <Dialog
           hidden={!showRejectModal}

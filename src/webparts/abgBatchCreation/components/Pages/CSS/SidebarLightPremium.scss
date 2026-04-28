@@ -34,7 +34,7 @@ $birla-gold: #c9a227; // premium gold
 
 .sidebar {
   flex: 0 0 auto;
-  background: $sidebar-bg;
+  background: #fff8f8;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   //box-shadow: 8px 0 24px rgba(0, 0, 0, 0.45);
   transition: width 0.42s cubic-bezier(0.32, 0.72, 0, 1);
@@ -46,7 +46,7 @@ $birla-gold: #c9a227; // premium gold
   }
 
   &.expanded {
-    width: 280px;
+    width: 260px;
   }
 }
 
@@ -88,8 +88,8 @@ $birla-gold: #c9a227; // premium gold
 }
 
 .logo img {
-  width: 100%;
-  height: 100%;
+  width: 75px;
+  height: 50px;
   object-fit: cover;
 }
 

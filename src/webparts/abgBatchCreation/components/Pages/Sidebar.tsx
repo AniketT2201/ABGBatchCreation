@@ -23,35 +23,26 @@ const Sidebar = (props: IAbgBatchCreationProps) => {
 
   const navGroups: INavLinkGroup[] = [
     {
-      name: 'TNI Creation',
+      name: 'Employee Training',
       links: [
+        // TNI
         { name: 'TNI Dashboard', key: 'TNIDashboardPage', url: '#', iconProps: { iconName: 'Home' } },
-        { name: 'ADD Modules', key: 'AddModules', url: '#', iconProps: { iconName: 'Add' } },
-        { name: 'TNI Creation Form', key: 'TNICreation', url: '#', iconProps: { iconName: 'Add' } },
-      ],
-    },
-    {
-      name: 'Batch Creation',
-      links: [
+        // Batch Creation
         { name: 'Batch Dashboard', key: 'BatchDashboard', url: '#', iconProps: { iconName: 'Home' } },
-        { name: 'Calendar', key: 'Calender', url: '#', iconProps: { iconName: 'Calendar' } },
-        { name: 'Create Batch', key: 'BatchForm', url: '#', iconProps: { iconName: 'Add' } },
-      ],
-    },
-    {
-      name: 'Batch Allocation',
-      links: [
+        // Batch Allocation
         { name: 'Batch Allocation Dashboard', key: 'BatchAllocationDashboard', url: '#', iconProps: { iconName: 'Chart' } },
-        { name: 'Employee Batch Allocation', key: 'EmployeeBatchAllocation', url: '#', iconProps: { iconName: 'Org' } },
-        { name: 'View Allocated Employees', key: 'ViewAllocatedEmployee', url: '#', iconProps: { iconName: 'People' } },
-      ],
-    },
-    {
-      name: 'Supervisor Dashboard',
-      links: [
+        // Supervisor
         { name: 'Employee Supervisor Dashboard', key: 'EmployeeSupervisorDashboard', url: '#', iconProps: { iconName: 'Chart' } },
-      ],
-    },
+        // Training Coordinator
+        { name: 'On Behalf Approval Dashboard', key: 'BehalfApprovalDashboard', url: '#', iconProps: { iconName: 'Chart' } },
+        // Attendance
+        { name: 'Attendance Dashboard', key: 'AttendanceDashboard', url: '#', iconProps: { iconName: 'Chart' } },
+        // Feedback
+        { name: 'Training Assessment', key: 'EmployeeFeedback', url: '#', iconProps: { iconName: 'Chart' } },
+        // Assessment Dashboard
+        { name: 'Assessment Dashboard', key: 'FeedbackDashboard', url: '#', iconProps: { iconName: 'Chart' } },
+      ]
+    }
   ];
 
   return (
@@ -63,7 +54,7 @@ const Sidebar = (props: IAbgBatchCreationProps) => {
         {!collapsed && (
           <div>
             <div className="brand-title">Aditya Birla</div>
-            <div className="brand-subtitle">ENTERPRISE HUB</div>
+            <div className="brand-subtitle">Employee Training</div>
           </div>
         )}
       </div>

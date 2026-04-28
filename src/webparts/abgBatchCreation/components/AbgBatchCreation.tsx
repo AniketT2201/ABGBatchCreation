@@ -15,6 +15,10 @@ import Sidebar from './Pages/Sidebar';
 import { TNIDashboardPage } from './Pages/TNIDashboardPage';
 import { AddModules } from './Pages/AddModules';
 import { TNICreation } from './Pages/TNICreation';
+import { BehalfApprovalDashboard } from './Pages/BehalfApprovalDashboard';
+import { AttendanceDashboard } from './Pages/AttendanceDashboard';
+import { EmployeeFeedback } from './Pages/EmployeeFeedback';
+import { FeedbackDashboard } from './Pages/FeedbackDashboard';
 
 export default class AbgBatchCreation extends React.Component<IAbgBatchCreationProps> {
   public render(): React.ReactElement<IAbgBatchCreationProps> {
@@ -47,6 +51,10 @@ export default class AbgBatchCreation extends React.Component<IAbgBatchCreationP
                   <Route exact path="/" render={() => <TNIDashboardPage {...this.props}/>} />
                   <Route path="/AddModules" render={() => <AddModules {...this.props}/>} />
                   <Route path="/TNICreation" render={() => <TNICreation {...this.props}/>} />
+                  <Route path="/BehalfApprovalDashboard" render={() => <BehalfApprovalDashboard {...this.props}/>} />
+                  <Route path="/AttendanceDashboard" render={() => <AttendanceDashboard {...this.props}/>} />
+                  <Route path="/EmployeeFeedback" render={() => <EmployeeFeedback {...this.props}/>} />
+                  <Route path="/FeedbackDashboard" render={() => <FeedbackDashboard {...this.props}/>} />
                 </Switch>
               </div>
             </div>

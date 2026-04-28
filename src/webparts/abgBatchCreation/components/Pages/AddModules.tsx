@@ -28,7 +28,7 @@ import FinancialYearMasterOps from '../../services/BAL/FinancialYearMaster';
 //Dashboard Import
 import DashboardOps from '../../services/BAL/TNIDashboard';
 import './CSS/AddModules.scss';
-import '../styles.scss';
+import './CSS/styles.scss';
 import Swal from 'sweetalert2';
 import { checkDuplicateLocal } from '../../services/Helper';
 import { Search24Regular } from "@fluentui/react-icons";

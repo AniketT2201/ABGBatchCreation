@@ -8,7 +8,7 @@ import {
   faChevronLeft,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
-import "../Calender.scss";
+import "./CSS/Calender.scss";
 
 export interface ICalendarPageProps extends IAbgBatchCreationProps {
   events?: { date: string; title?: string }[];

@@ -8,8 +8,8 @@ import DashboardOps from '../../services/BAL/BatchCreationDashboard';
 import logo from '../../assets/ABGlogo.jpg';
 import { Search24Regular } from "@fluentui/react-icons";
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import '../styles.scss';
-import '../TNICreation.scss';
+import './CSS/styles.scss';
+import './CSS/TNICreation.scss';
 import { IBatchCreationDashboard } from '../../services/interface/IBatchCreationDashboard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -128,32 +128,27 @@ export const DashboardPage: React.FunctionComponent<IAbgBatchCreationProps> = (p
           <div className="spinner"></div>
         </div>
       )}
-      {/* <div className={`menuWrapper `} >
-        <div className ="Logo">
-          <img src={logo}alt="Logo" />
-        </div>
-      </div> */}
 
       <div className="stickyHeader">
         <div className="tniHeader">
           <h1 className="popup-header">Batch Dashboard</h1>
-          <div className="tabsRow">
-            <div className="tabs">
-              {tabs.map(tab => (
-                <div
-                  key={tab.id}
-                  className={`tab ${activeTab === tab.id ? "active" : ""}`}
-                  onClick={() => setActiveTab(tab.id)}
-                >
-                  {tab.label}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
       {/* PAGE CONTENT */}
       <div className="pageContent">
+        <div className="tabsRow">
+          <div className="tabs">
+            {tabs.map(tab => (
+              <div
+                key={tab.id}
+                className={`tab ${activeTab === tab.id ? "active" : ""}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </div>
+            ))}
+          </div>
+        </div>
         {activeTab === "OnGoing" && (
           <div className={`createFormBtnWrapper `} >
             <button className="createFormBtn"

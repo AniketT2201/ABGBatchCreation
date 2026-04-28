@@ -9,7 +9,7 @@ import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import USESPCRUD, { ISPCRUD } from '../../services/BAL/SPCRUD/spcrud';
-import '../styles.scss';
+import './CSS/styles.scss';
 import { Link } from 'react-router-dom';
 import anime from "animejs/lib/anime.es.js"; // Ensure correct path
 import html2canvas from 'html2canvas';
@@ -122,23 +122,23 @@ export const TNIDashboardPage: React.FunctionComponent<IAbgBatchCreationProps> =
       <div className="stickyHeader">
         <div className="tniHeader">
           <h1 className="popup-header">TNI Dashboard</h1>
-          <div className="tabsRow">
-            <div className="tabs">
-              {tabs.map(tab => (
-                <div
-                  key={tab.id}
-                  className={`tab ${activeTab === tab.id ? "active" : ""}`}
-                  onClick={() => setActiveTab(tab.id)}
-                >
-                  {tab.label}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
       {/* PAGE CONTENT */}
       <div className="pageContent">
+        <div className="tabsRow">
+          <div className="tabs">
+            {tabs.map(tab => (
+              <div
+                key={tab.id}
+                className={`tab ${activeTab === tab.id ? "active" : ""}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </div>
+            ))}
+          </div>
+        </div>
         <div className={`createFormBtnWrapper `} >
           <button className="createFormBtn"
           onClick={() => history.push('/TNICreation')}

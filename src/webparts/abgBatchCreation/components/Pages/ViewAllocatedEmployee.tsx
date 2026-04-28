@@ -7,8 +7,8 @@ import DashboardOps from '../../services/BAL/BatchCreationDashboard';
 import logo from '../../assets/ABGlogo.jpg';
 import { Search24Regular } from "@fluentui/react-icons";
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import '../styles.scss';
-import '../TNICreation.scss';
+import './CSS/styles.scss';
+import './CSS/TNICreation.scss';
 import { IViewAllocatedEmployee } from '../../services/interface/IViewAllocatedEmployee';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
